@@ -1,0 +1,1 @@
+LevyDado.o: ../LevyDado.c
