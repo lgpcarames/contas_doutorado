@@ -1,0 +1,1 @@
+levytestedados.o: ../levytestedados.c
