@@ -13,7 +13,9 @@ static float sqrarg;
 #define RV 1                         //radius of vision (smaller annulus radius)
 #define LC 5                      //distance from closest target (from center)
 
+#define TOTALRANGE 999999999999999.0
 #define TOTALDISTANCE 100000000         // total distance traveled before stopping
+//#define TOTALDISTANCE 2000000         // total distance traveled before stopping
 #define LARGESTFLIGHT (L*1000)       // maximum levy step size 
 
 #define PI 3.14159265358979323846
@@ -69,32 +71,40 @@ double rng_levy48(double alpha, double rr){
   }
 */
 
-double rng_levy48(double alpha, double rr){
-  double ee, phi;
-  double mu=alpha-1;
-  double mu1=mu-1;
-  double xmu=1/mu;
-  double xmu1=xmu-1;
-  phi=(drand48()-0.5)*PI;
-  ee=-log(drand48());
-  double f;
-  f = rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-  if(f>9999 || f<-9999){
-  while(f>9999 && f<-9999){
-	  phi=(drand48()-0.5)*PI;
-	  ee=-log(drand48());
-	  f = rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-  }return f;
-  }else{
+/*double valor(void){
+	printf("%lf", drand48());
+}*/
 
-  return f;
-  }
-  }
+double rng_levy48(double alpha, double rr){
+double ee, phi;
+double mu=alpha-1;
+double mu1=mu-1;
+double xmu=1/mu;
+double xmu1=xmu-1;
+double f;
+phi=(drand48()-0.5)*PI;
+ee=-log(drand48());
+f = rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+//int condicao = f>10000 || f<-10000;
+
+if(f>TOTALRANGE || f<-TOTALRANGE){
+//printf("Deu fora do alcance, f = %lf\n", f);
+do{
+phi=(drand48()-0.5)*PI;
+ee=-log(drand48());
+f = rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+}while(f>TOTALRANGE || f<-TOTALRANGE);
+//printf("Novo valor de f = %lf\n", f);
+}
+//printf("valor f=%lf\n", f);
+return f;
+}
+
 
 void  initialize_search(){
   double phi;                        // random angle
   
-  x=R0*1.000000001;
+  x=R0*1.00001;
   y=0;
 
   // walker always starts at this position.
@@ -137,7 +147,7 @@ void find_target(){
 //	rry=R0*exp(log(rrx)*(1/(1-mu)));
 	rry=rng_levy48(mu, R0);
       }
-    //    printf("mu=%lf flight=%lf  \n",mu,rry); 
+        //printf("mu=%lf flight=%lf  \n",mu,rry);
     
     ell=rry;
     flight_histogram[tt=mu/MU_INC]++;    
@@ -178,7 +188,7 @@ void find_target(){
       { //target found
 	c= SQR(x) + SQR(y) - SQR(L);
 	discriminant = SQR(b) - 4*a*c;
-	printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
+	//printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
 	if (discriminant<0) {printf("\n Serious discriminant error for outer radius\n"); exit(0);}
 	delta=sqrt(discriminant);
 	
@@ -225,7 +235,7 @@ void find_target(){
 	    if ((0<=t) && (t<=1))
 	      // target found 
 	      {
-		//		printf("inside!!  (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
+				printf("inside!!  (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
 		targetnotfound=0;
 		travel+=ell*t; // t is the fraction traversed
 		inside_histogram[ tt=mu/MU_INC]++;
@@ -247,8 +257,8 @@ void find_target(){
 }
   
 void main(){
-int i;
-  
+int i=0;
+
   //initialize result array
   for (mu=1.1;mu<=3.1;mu+=MU_INC) {
     distance_histogram[ tt=mu/MU_INC]=0;
@@ -264,21 +274,25 @@ int i;
   
   for (mu=1.1;mu<=3.1;mu+=MU_INC){
 
-    while (distance_histogram[tt=mu/MU_INC]<TOTALDISTANCE)
-      {
+    do{
+    	printf(" Passo %d \n",i);
 	initialize_search(); //put searcher in the right position
 	find_target();  // search until target found
-	distance_histogram[tt=mu/MU_INC]+=travel; // sum the distances and store
+	distance_histogram[tt=mu/MU_INC]+=(unsigned)travel; // sum the distances and store
 	target_histogram[tt=mu/MU_INC]++;
-	//      printf(" ding ding %d %lf \n",i,mu);
-      }
+	i++;
+
+	      printf(" ding ding %lf, %lf \n",target_histogram[tt=mu/MU_INC],mu);
+	      printf(" dong dong %lf, %lf \n",distance_histogram[tt=mu/MU_INC],mu);
+
+      }while (distance_histogram[tt=mu/MU_INC]<TOTALDISTANCE);
   }
   
   
 
-  printf(" mu  eta         distance     targets      numer-of-flights inside outside\n");
+  /*printf(" mu  eta         distance     targets      numer-of-flights inside outside\n");
   
-  //print result array
+  print result array
   for (mu=1.1;mu<=3.1;mu+=MU_INC){
     printf("%lf %lg %lf %ld %ld %ld %ld\n",
 	   mu,
@@ -290,13 +304,13 @@ int i;
 	   outside_histogram[ tt=mu/MU_INC]);
 
     fflush(stdout);
-  }
+  }*/
 
    FILE *arq;
     arq = fopen("levywalk.csv", "w+");
-    fprintf(arq, "mu, eta, distance, targets, number-of-flights, inside, outside\n");
+    fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
     for (mu=1.1;mu<=3.1;mu+=MU_INC){
-    	fprintf(arq, "%lf, %lg,  %lf, %ld, %ld, %ld, %ld\n",
+    	fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
 	   mu,
 	   target_histogram[ tt=mu/MU_INC]/distance_histogram[ tt=mu/MU_INC]*(SQR(L)/RV) ,
 	   distance_histogram[ tt=mu/MU_INC],
