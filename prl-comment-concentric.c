@@ -103,8 +103,12 @@ return f;
 
 void  initialize_search(){
   double phi;                        // random angle
+  //Boundary condition 1
+  //x=LC;
   
-  x=R0*1.000000001;
+  //Boundary condition 2
+
+ x=R0*1.000000001;
   y=0;
 
   // walker always starts at this position.
@@ -118,8 +122,8 @@ void  initialize_search(){
 void find_target(){
   
   unsigned long here,this;
-//  double rrx,rry;                        // random number generation
-  double rry;
+  double rrx,rry;                        // random number generation
+  //double rry;
   double vx,vy;                      // velocity unit vector components 
   double ell;                        // levy walk jump size
   double phi;                        // velocity  angle
@@ -143,9 +147,10 @@ void find_target(){
     rry= LARGESTFLIGHT+1;
     while (rry>LARGESTFLIGHT)
       {
-//	rrx=drand48();
-//	rry=R0*exp(log(rrx)*(1/(1-mu)));
-	rry=rng_levy48(mu, R0);
+    rrx=drand48();
+
+    rry=R0*exp(log(rrx)*(1/(1-mu)));
+	//rry=rng_levy48(mu, R0);
       }
         //printf("mu=%lf flight=%lf  \n",mu,rry);
     
@@ -280,13 +285,6 @@ int i=0;
 	find_target();  // search until target found
 	distance_histogram[tt=mu/MU_INC]+=travel; // sum the distances and store
 	target_histogram[tt=mu/MU_INC]++;
-
-	      //printf("alvos %ld,%lf \n",target_histogram[tt=mu/MU_INC],mu);
-	      //printf("voos %ld,%lf \n",flight_histogram[tt=mu/MU_INC],mu);
-	      //printf("alvos dentro %ld,%lf \n",inside_histogram[tt=mu/MU_INC],mu);
-	      //printf("alvos fora %ld,%lf \n",outside_histogram[tt=mu/MU_INC],mu);
-	      //printf("distância %ld,%lf \n", distance_histogram[tt=mu/MU_INC],mu);
-
       }
   }
   fflush(stdout);
@@ -309,7 +307,7 @@ int i=0;
   }*/
 
    FILE *arq;
-    arq = fopen("levywalk_bc2.csv", "w+");
+    arq = fopen("powerlaw_bc2.csv", "w+");
     fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
     for (mu=1.1;mu<=3.1;mu+=MU_INC){
     	fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
