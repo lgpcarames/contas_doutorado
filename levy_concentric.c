@@ -9,9 +9,11 @@ static float sqrarg;
 // #define TARGETS 1000                   //ensemble average over TARGETS
 
 
-#define L 50                        //linear size (outer radius)
+#define L 500                        //linear size (outer radius)
 #define RV 1                         //radius of vision (smaller annulus radius)
 #define LC 5                      //distance from closest target (from center)
+
+double scale=1;
 
 #define TOTALRANGE 999999.0
 #define TOTALDISTANCE 100000000         // total distance traveled before stopping
@@ -107,8 +109,7 @@ void  initialize_search(){
   //x=LC;
   
   //Boundary condition 2
-
- x=R0*1.000000001;
+  x=R0*1.0001;
   y=0;
 
   // walker always starts at this position.
@@ -122,8 +123,8 @@ void  initialize_search(){
 void find_target(){
   
   unsigned long here,this;
-  double rrx,rry;                        // random number generation
-  //double rry;
+  //double rrx,rry;                        // random number generation
+  double rry;
   double vx,vy;                      // velocity unit vector components 
   double ell;                        // levy walk jump size
   double phi;                        // velocity  angle
@@ -147,10 +148,10 @@ void find_target(){
     rry= LARGESTFLIGHT+1;
     while (rry>LARGESTFLIGHT)
       {
-    rrx=drand48();
+    //rrx=drand48();
 
-    rry=R0*exp(log(rrx)*(1/(1-mu)));
-	//rry=rng_levy48(mu, R0);
+    //rry=R0*exp(log(rrx)*(1/(1-mu)));
+	rry=rng_levy48(mu, scale);
       }
         //printf("mu=%lf flight=%lf  \n",mu,rry);
     
@@ -211,7 +212,7 @@ void find_target(){
 	    t= ( - b - delta )/(2*a);
 	    printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
 
-	    printf("%lf", drand48());
+	    printf("%lf", ell);
 	    if ((-0.001<=t)&&(t<=1.001))
 	      {
 		targetnotfound=0;
@@ -281,8 +282,8 @@ int i=0;
 
 	  while (distance_histogram[tt=mu/MU_INC]<TOTALDISTANCE){
 
-	initialize_search(); //put searcher in the right position
-	find_target();  // search until target found
+	initialize_search(RV); //put searcher in the right position
+	find_target(0.1);  // search until target found
 	distance_histogram[tt=mu/MU_INC]+=travel; // sum the distances and store
 	target_histogram[tt=mu/MU_INC]++;
       }
@@ -306,8 +307,13 @@ int i=0;
     fflush(stdout);
   }*/
 
+//ell = Scale parameter
+//RE = External Radius
+//BC1 = first boundary condition defined as x=LC
+//BC2 = second boundary condition defined as x=R0*1.0001
+
    FILE *arq;
-    arq = fopen("powerlaw_bc2.csv", "w+");
+    arq = fopen("pwl_ell1_ER500_BC2.csv", "w+");
     fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
     for (mu=1.1;mu<=3.1;mu+=MU_INC){
     	fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
@@ -318,9 +324,7 @@ int i=0;
 	   flight_histogram[ tt=mu/MU_INC],
 	   inside_histogram[ tt=mu/MU_INC],
 	   outside_histogram[ tt=mu/MU_INC]);
-
     }
-
     fclose(arq);
 
 }
