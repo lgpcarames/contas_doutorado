@@ -7,20 +7,28 @@ static float sqrarg;
 
 
 // #define TARGETS 1000                   //ensemble average over TARGETS
-
-
-#define L 500                        //linear size (outer radius)
+#define PI 3.14159265358979323846
 #define RV 1                         //radius of vision (smaller annulus radius)
-#define LC 5                      //distance from closest target (from center)
+// rho, delta, sigma parameters
 
-double scale=1;
+#define rho 0.0001
+#define sigma 0.0001
+#define Delta 0.0001
 
-#define TOTALRANGE 999999.0
+
+//#define L 50                      //linear size (outer radius)
+#define L sqrt(PI*rho)
+//#define LC 5                      //distance from closest target (from center)
+
+#define LC RV*(Delta+1)
+
+#define scale sigma*RV
+
+#define TOTALRANGE 999999999999999999
 #define TOTALDISTANCE 100000000         // total distance traveled before stopping
 //#define TOTALDISTANCE 2000000         // total distance traveled before stopping
 #define LARGESTFLIGHT (L*1000)       // maximum levy step size 
 
-#define PI 3.14159265358979323846
 #define R0 1                         //smallest step
 
 
@@ -195,7 +203,9 @@ void find_target(){
 	c= SQR(x) + SQR(y) - SQR(L);
 	discriminant = SQR(b) - 4*a*c;
 	//printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
-	if (discriminant<0) {printf("\n Serious discriminant error for outer radius\n"); exit(0);}
+	if (discriminant<0) {
+		printf("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", rho, sigma, Delta, L, scale, LC, L, rry);
+		printf("\n Serious discriminant error for outer radius %lf \n", discriminant); exit(0);}
 	delta=sqrt(discriminant);
 	
 	t= ( - b + delta )/(2*a);
@@ -263,7 +273,7 @@ void find_target(){
 }
   
 void main(){
-int i=0;
+//int i=0;
 
   //initialize result array
   for (mu=1.1;mu<=3.1;mu+=MU_INC) {
@@ -313,7 +323,7 @@ int i=0;
 //BC2 = second boundary condition defined as x=R0*1.0001
 
    FILE *arq;
-    arq = fopen("pwl_ell1_ER500_BC2.csv", "w+");
+    arq = fopen("concentric_levy.csv", "w+");
     fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
     for (mu=1.1;mu<=3.1;mu+=MU_INC){
     	fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
