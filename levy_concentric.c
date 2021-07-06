@@ -13,16 +13,16 @@ static float sqrarg;
 
 #define rho 0.0001
 #define sigma 0.0001
-#define Delta 0.0001
+#define Delta 2
 
 
 //#define L 50                      //linear size (outer radius)
-#define L sqrt(PI*rho)
+#define L  (sqrt(1/PI*rho))
 //#define LC 5                      //distance from closest target (from center)
 
-#define LC RV*(Delta+1)
+#define LC (RV*(Delta+1))
 
-#define scale sigma*RV
+#define scale (sigma*RV)
 
 #define TOTALRANGE 999999999999999999
 #define TOTALDISTANCE 100000000         // total distance traveled before stopping
@@ -117,7 +117,7 @@ void  initialize_search(){
   //x=LC;
   
   //Boundary condition 2
-  x=R0*1.0001;
+  x=LC;
   y=0;
 
   // walker always starts at this position.
@@ -130,7 +130,7 @@ void  initialize_search(){
 
 void find_target(){
   
-  unsigned long here,this;
+  //unsigned long here,this;
   //double rrx,rry;                        // random number generation
   double rry;
   double vx,vy;                      // velocity unit vector components 
@@ -170,8 +170,8 @@ void find_target(){
     phi=drand48()*PI;
     vx=cos(phi);vy=sin(phi);
     
-    xnew=x+ell*vx;
-    ynew=y+ell*vy;
+    xnew=x+ell*vx; // 1.000174347
+    ynew=y+ell*vy; // 0.0000668769
     
     // parametrize in t according to 
     // x(t) = x + t (xnew-x) = x + cx t
@@ -179,8 +179,8 @@ void find_target(){
     // this means that t=0 gives the original position and
     // t=1 gives the final position. 
 
-    cx=xnew-x;
-    cy=ynew-y;
+    cx=xnew-x; // 0.000074347
+    cy=ynew-y; // 0.0000668769
 
     // Now let us write (x(t))^2 + (y(t))^2= radius^2 and
     // find the values of t.
@@ -191,8 +191,8 @@ void find_target(){
     // So x^2+ cx^2 t^2 + 2 cx x t + y^2 + cy^2 t^2 + 2 cy y t -R^2=0
     // t^2(cx^2 + cy^2) + t(2 cx x + 2 cy y) + x^2 + y^2 - R^2 =0
     // So in the quadratic formula we will have
-    a=  SQR(cx)  + SQR(cy);
-    b= 2 *cx*x + 2*cy*y;
+    a=  SQR(cx)  + SQR(cy); // 0.00000000999999616261
+    b= 2 *cx*x + 2*cy*y; // 0.0001487088694
     // c= x^2 + y^2 - R^2
     //printf(" (%lf,%lf) --> (%lf,%lf), increment = %lf\n" ,x,y,xnew,ynew, ell);
         
@@ -201,10 +201,12 @@ void find_target(){
     if (SQR(xnew)+SQR(ynew)>=SQR(L))
       { //target found
 	c= SQR(x) + SQR(y) - SQR(L);
-	discriminant = SQR(b) - 4*a*c;
+	discriminant = SQR(b) - 4*a*c;// 4*a*c=0.00000003999542465218984984
 	//printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
 	if (discriminant<0) {
-		printf("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", rho, sigma, Delta, L, scale, LC, L, rry);
+		printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, phi=%lf, vx=%lf, vy=%lf\n", y, x, ynew, xnew, phi, vx, vy);
+		printf("a=%lf, b=%lf, c=%lf\n", a, b, c);
+		printf("rho=%lf, sigma=%lf, delta=%lf, L=%lf, ell=%lf, LC=%lf, rry=%lf", rho, sigma, Delta, L, scale, LC, rry);
 		printf("\n Serious discriminant error for outer radius %lf \n", discriminant); exit(0);}
 	delta=sqrt(discriminant);
 	
