@@ -13,23 +13,20 @@ static float sqrarg;
 
 #define rho 0.0001
 #define sigma 0.0001
-#define Delta 2
+#define Delta 0.0001
+
+#define TOTALRANGE 99999999999999
+#define TOTALDISTANCE 100000000        // total distance traveled before stopping
+#define R0 1                         //smallest step
 
 
 //#define L 50                      //linear size (outer radius)
-#define L  (sqrt(1/PI*rho))
-//#define LC 5                      //distance from closest target (from center)
+//#define LC 5           	           //distance from closest target (from center)
 
-#define LC (RV*(Delta+1))
 
-#define scale (sigma*RV)
 
-#define TOTALRANGE 999999999999999999
-#define TOTALDISTANCE 100000000         // total distance traveled before stopping
 //#define TOTALDISTANCE 2000000         // total distance traveled before stopping
-#define LARGESTFLIGHT (L*1000)       // maximum levy step size 
 
-#define R0 1                         //smallest step
 
 
 // the search space is a 2D torus of size LxL
@@ -43,7 +40,46 @@ static float sqrarg;
 #define MAX_MU_ENTRIES 100           //this should be > 3/MU_INC
 
 
-// library functions 
+
+/*modified function
+double rng_levy48(double alpha, double rr){
+  double ee, phi;
+  double mu=alpha-1;
+  double mu1=mu-1;
+  double xmu=1/mu;
+  double xmu1=xmu-1;
+  phi=(drand48()-0.5)*PI;
+  ee=-log(drand48());
+  //double f;
+  return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+  }
+*/
+
+/*double valor(void){
+	printf("%lf", drand48());
+}*/
+
+
+
+
+
+
+void main(){
+//int i=0;
+
+
+
+  // input values
+double L = 1/sqrt(PI*rho);
+double LC = RV*(Delta+1);
+double scale = sigma*RV;
+int LARGESTFLIGHT=50000;       // maximum levy step size
+
+////////////////////////////////////////////////
+
+
+// functions
+  // library functions
 double drand48();                   
 void exit(int status);
 
@@ -65,26 +101,7 @@ inside_histogram[MAX_MU_ENTRIES];    // debugging
 static long
 outside_histogram[MAX_MU_ENTRIES];    // debugging
  
-
-
-/*modified function
-double rng_levy48(double alpha, double rr){
-  double ee, phi;
-  double mu=alpha-1;
-  double mu1=mu-1;
-  double xmu=1/mu;
-  double xmu1=xmu-1;
-  phi=(drand48()-0.5)*PI;
-  ee=-log(drand48());
-  //double f;
-  return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-  }
-*/
-
-/*double valor(void){
-	printf("%lf", drand48());
-}*/
-
+ //Levy function definition
 double rng_levy48(double alpha, double rr){
 double ee, phi;
 double mu=alpha-1;
@@ -111,6 +128,7 @@ return f;
 }
 
 
+  //initializer function
 void  initialize_search(){
   double phi;                        // random angle
   //Boundary condition 1
@@ -128,6 +146,7 @@ void  initialize_search(){
 }
 
 
+// Function to find the target to storage the information about it
 void find_target(){
   
   //unsigned long here,this;
@@ -153,60 +172,60 @@ void find_target(){
   ell=0;
   while (targetnotfound){
 
-    rry= LARGESTFLIGHT+1;
-    while (rry>LARGESTFLIGHT)
-      {
-    //rrx=drand48();
+	rry= LARGESTFLIGHT+1;
+	while (rry>LARGESTFLIGHT)
+	  {
+	//rrx=drand48();
 
-    //rry=R0*exp(log(rrx)*(1/(1-mu)));
+	//rry=R0*exp(log(rrx)*(1/(1-mu)));
 	rry=rng_levy48(mu, scale);
-      }
-        //printf("mu=%lf flight=%lf  \n",mu,rry);
-    
-    ell=rry;
-    flight_histogram[tt=mu/MU_INC]++;    
+	  }
+		//printf("mu=%lf flight=%lf  \n",mu,rry);
 
-    
-    phi=drand48()*PI;
-    vx=cos(phi);vy=sin(phi);
-    
-    xnew=x+ell*vx; // 1.000174347
-    ynew=y+ell*vy; // 0.0000668769
-    
-    // parametrize in t according to 
-    // x(t) = x + t (xnew-x) = x + cx t
-    // y(t) = y + t (ynew-x) = t + cy t
-    // this means that t=0 gives the original position and
-    // t=1 gives the final position. 
+	ell=rry;
+	flight_histogram[tt=mu/MU_INC]++;
 
-    cx=xnew-x; // 0.000074347
-    cy=ynew-y; // 0.0000668769
 
-    // Now let us write (x(t))^2 + (y(t))^2= radius^2 and
-    // find the values of t.
-    // if t is complex then there is no intersection
-    // it t is real and inside  [0,1] then there is intersection
-    // with the circle of the given radius of the line segment
+	phi=drand48()*PI;
+	vx=cos(phi);vy=sin(phi);
 
-    // So x^2+ cx^2 t^2 + 2 cx x t + y^2 + cy^2 t^2 + 2 cy y t -R^2=0
-    // t^2(cx^2 + cy^2) + t(2 cx x + 2 cy y) + x^2 + y^2 - R^2 =0
-    // So in the quadratic formula we will have
-    a=  SQR(cx)  + SQR(cy); // 0.00000000999999616261
-    b= 2 *cx*x + 2*cy*y; // 0.0001487088694
-    // c= x^2 + y^2 - R^2
-    //printf(" (%lf,%lf) --> (%lf,%lf), increment = %lf\n" ,x,y,xnew,ynew, ell);
-        
-    // start with outer radius L
+	xnew=x+ell*vx; // 1.000174347
+	ynew=y+ell*vy; // 0.0000668769
 
-    if (SQR(xnew)+SQR(ynew)>=SQR(L))
-      { //target found
+	// parametrize in t according to
+	// x(t) = x + t (xnew-x) = x + cx t
+	// y(t) = y + t (ynew-x) = t + cy t
+	// this means that t=0 gives the original position and
+	// t=1 gives the final position.
+
+	cx=xnew-x; // 0.000074347
+	cy=ynew-y; // 0.0000668769
+
+	// Now let us write (x(t))^2 + (y(t))^2= radius^2 and
+	// find the values of t.
+	// if t is complex then there is no intersection
+	// it t is real and inside  [0,1] then there is intersection
+	// with the circle of the given radius of the line segment
+
+	// So x^2+ cx^2 t^2 + 2 cx x t + y^2 + cy^2 t^2 + 2 cy y t -R^2=0
+	// t^2(cx^2 + cy^2) + t(2 cx x + 2 cy y) + x^2 + y^2 - R^2 =0
+	// So in the quadratic formula we will have
+	a=  SQR(cx)  + SQR(cy); // 0.00000000999999616261
+	b= 2 *cx*x + 2*cy*y; // 0.0001487088694
+	// c= x^2 + y^2 - R^2
+	//printf(" (%lf,%lf) --> (%lf,%lf), increment = %lf\n" ,x,y,xnew,ynew, ell);
+
+	// start with outer radius L
+
+	if (SQR(xnew)+SQR(ynew)>=SQR(L))
+	  { //target found
 	c= SQR(x) + SQR(y) - SQR(L);
 	discriminant = SQR(b) - 4*a*c;// 4*a*c=0.00000003999542465218984984
 	//printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
 	if (discriminant<0) {
-		printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, phi=%lf, vx=%lf, vy=%lf\n", y, x, ynew, xnew, phi, vx, vy);
-		printf("a=%lf, b=%lf, c=%lf\n", a, b, c);
-		printf("rho=%lf, sigma=%lf, delta=%lf, L=%lf, ell=%lf, LC=%lf, rry=%lf", rho, sigma, Delta, L, scale, LC, rry);
+		//printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, phi=%lf, vx=%lf, vy=%lf\n", y, x, ynew, xnew, phi, vx, vy);
+		//printf("a=%lf, b=%lf, c=%lf\n", a, b, c);
+		//printf("rho=%lf, sigma=%lf, delta=%lf, L=%lf, ell=%lf, LC=%lf, rry=%lf", rho, sigma, Delta, L, scale, LC, rry);
 		printf("\n Serious discriminant error for outer radius %lf \n", discriminant); exit(0);}
 	delta=sqrt(discriminant);
 	
@@ -214,68 +233,68 @@ void find_target(){
 	//printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
 	if ((-0.001<=t)&&(t<=1.001))
 	  {
-	    targetnotfound=0;
-	    travel+=ell*t; // t is the fraction traversed
-	    outside_histogram[ tt=mu/MU_INC]++;
-	  }
-	else
-	  {
-	    printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
-	    t= ( - b - delta )/(2*a);
-	    printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
-
-	    printf("%lf", ell);
-	    if ((-0.001<=t)&&(t<=1.001))
-	      {
 		targetnotfound=0;
 		travel+=ell*t; // t is the fraction traversed
 		outside_histogram[ tt=mu/MU_INC]++;
-	      }
-	    else {printf("\n Serious error regarding outer radius\n"); exit(0);}
 	  }
-      }
-    else
-      // so walker is inside larger radius
-      // in this case either there is zero or two intersections
-      // with a very small probability  of a tanget intersection
-      {
+	else
+	  {
+		printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
+		t= ( - b - delta )/(2*a);
+		printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
+
+		printf("ell=%lf, discriminant=%lf, delta=%lf, b=%lf", ell, discriminant, delta, b);
+		if ((-0.001<=t)&&(t<=1.001))
+		  {
+		targetnotfound=0;
+		travel+=ell*t; // t is the fraction traversed
+		outside_histogram[ tt=mu/MU_INC]++;
+		  }
+		else {printf("\n Serious error regarding outer radius\n"); exit(0);}
+	  }
+	  }
+	else
+	  // so walker is inside larger radius
+	  // in this case either there is zero or two intersections
+	  // with a very small probability  of a tanget intersection
+	  {
 	c= SQR(x) + SQR(y) - SQR(RV);
 	discriminant = SQR(b) - 4*a*c;
 	if (discriminant>=0)
 	  // this means there is an intersection
 	  {
-	    delta=sqrt(discriminant);
-	    t= ( - b + delta )/(2*a);
-	    t2=( - b - delta )/(2*a);
-	    if ((0<t2)&&(t2<t)&&(t<1)) t=t2;
-	    // the above is to choose the entry rather than exit intersection
+		delta=sqrt(discriminant);
+		t= ( - b + delta )/(2*a);
+		t2=( - b - delta )/(2*a);
+		if ((0<t2)&&(t2<t)&&(t<1)) t=t2;
+		// the above is to choose the entry rather than exit intersection
 
-	    if ((0<=t) && (t<=1))
-	      // target found 
-	      {
+		if ((0<=t) && (t<=1))
+		  // target found
+		  {
 //				printf("inside!!  (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
 		targetnotfound=0;
 		travel+=ell*t; // t is the fraction traversed
 		inside_histogram[ tt=mu/MU_INC]++;
-	      }
-	    // else the the intersection occurs outside t\in[0,1]
-	    // so that it is not physical
+		  }
+		// else the the intersection occurs outside t\in[0,1]
+		// so that it is not physical
 	  }
 	// else the negative discriminant means there no intersection
-      }
-    {
-      //      printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
-      //      printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
-      //      exit(0);
+	  }
+	{
+	  //      printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
+	  //      printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
+	  //      exit(0);
 	}
-    x=xnew;
-    y=ynew;
-    if (targetnotfound) travel+=ell;
+	x=xnew;
+	y=ynew;
+	if (targetnotfound) travel+=ell;
   }
 }
-  
-void main(){
-//int i=0;
+
+
+
 
   //initialize result array
   for (mu=1.1;mu<=3.1;mu+=MU_INC) {
