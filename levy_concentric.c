@@ -4,21 +4,29 @@
 static float sqrarg;
 #define SQR(a)((sqrarg = (a)) == 0.0 ? 0.0 : sqrarg * sqrarg)
 #include <math.h>
+#include <time.h>
 
 #define SWAP(a, b) tempr = (a);(a) = (b); (b) = tempr
+
 
 // #define TARGETS 1000                   //ensemble average over TARGETS
 #define PI 3.14159265358979323846
 #define RV 1 //radius of vision (smaller annulus radius)
-// rho, delta, sigma parameters
 
+
+// rho, delta, sigma parameters
 #define rho 0.0001
 #define sigma 0.0001
 #define Delta 0.0001
 
-#define TOTALRANGE 99999999999999
-#define TOTALDISTANCE 100000000 // total distance traveled before stopping
-#define R0 1 //smallest step
+// levy distribution range max
+#define TOTALRANGE 99999999999999999999
+
+// total distance traveled before stopping
+#define TOTALDISTANCE 1000
+
+//smallest step
+#define R0 1
 
 //#define L 50                      //linear size (outer radius)
 //#define LC 5           	           //distance from closest target (from center)
@@ -26,13 +34,16 @@ static float sqrarg;
 //#define TOTALDISTANCE 2000000         // total distance traveled before stopping
 
 // the search space is a 2D torus of size LxL
-// the periodic boundary conditions (BC) are chosen so that
+// the periodic boundary conditions ( BC) are chosen so that
 // the coordinates x and y can vary from -L/2 to +L/2.
 // The target is always located at the origin (0,0)
 // This choice of target location makes the code run faster
 
-#define MU_INC 0.1 //step for incrementing mu
-#define MAX_MU_ENTRIES 100 //this should be > 3/MU_INC
+//step for incrementing mu
+#define MU_INC 0.1
+
+//this should be > 3/MU_INC
+#define MAX_MU_ENTRIES 100
 
 /*modified function
 double rng_levy48(double alpha, double rr){
@@ -56,24 +67,42 @@ void main() {
   //int i=0;
 
   // input values
-  double L = 1 / sqrt(PI * rho);
-  double LC = RV * (Delta + 1);
+  double L = 1 / sqrt(PI * rho); // external radius
+  double LC = RV * (Delta + 1); // start point
   double scale = sigma * RV;
-  int LARGESTFLIGHT = 50000; // maximum levy step size
+
+  // maximum levy step size
+  int LARGESTFLIGHT = 10000*L;
+
+
+  // function to evaluate the time elapsed
+  clock_t tic = clock();
+  time_t curr_time;
+  struct tm *info;
+  time(&curr_time);
+  info = localtime(&curr_time);
+
 
   ////////////////////////////////////////////////
 
-  // functions
-  // library functions
+  // FUNCTIONS
+  /// library functions
   double drand48();
   void exit(int status);
 
-  long n;
-  static double travel; // travel distance
-  static double x, y; //searcher coordinate
-  static double mu; //levy index alpha + 1
-  static int tt; // dummy for easier type casting
+  //// travel distance
+  static double travel;
 
+  //// searcher coordinate
+  static double x, y;
+
+  //// levy index alpha + 1
+  static double mu;
+
+  //// dummy for easier type casting
+  static int tt;
+
+  //// histogram variables
   static double
   distance_histogram[MAX_MU_ENTRIES]; // table of results
   static long
@@ -84,8 +113,10 @@ void main() {
   inside_histogram[MAX_MU_ENTRIES]; // debugging
   static long
   outside_histogram[MAX_MU_ENTRIES]; // debugging
+  static long
+  nointersec_array[MAX_MU_ENTRIES]; // debugging
 
-  //Levy function definition
+  /* Truncated - levy function definition
   double rng_levy48(double alpha, double rr) {
     double ee, phi;
     double mu = alpha - 1;
@@ -109,15 +140,28 @@ void main() {
     }
     //printf("Value of f=%lf\n", f);
     return f;
-  }
+  }*/
 
-  //initializer function
+
+  /*modified function*/
+  double rng_levy48(double alpha, double rr){
+    double ee, phi;
+    double mu=alpha-1;
+    double mu1=mu-1;
+    double xmu=1/mu;
+    double xmu1=xmu-1;
+    phi=(drand48()-0.5)*PI;
+    ee=-log(drand48());
+    //double f;
+    return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+    }
+
+
+  //// initializer function
   void initialize_search() {
-    double phi; // random angle
-    //Boundary condition 1
-    //x=LC;
+    //double phi; // random angle
 
-    //Boundary condition 2
+    //Boundary condition
     x = LC;
     y = 0;
 
@@ -132,8 +176,9 @@ void main() {
   void find_target() {
 
     //unsigned long here,this;
-    //double rrx,rry;                        // random number generation
-    double rry;
+    //double rrx,rry
+
+    double rry; // random number generation
     double vx, vy; // velocity unit vector components
     double ell; // levy walk jump size
     double phi; // velocity  angle
@@ -152,12 +197,13 @@ void main() {
     while (targetnotfound) {
 
       rry = LARGESTFLIGHT + 1;
-      while (rry > LARGESTFLIGHT) {
+      do{
         //rrx=drand48();
 
-        //rry=R0*exp(log(rrx)*(1/(1-mu)));
-        rry = rng_levy48(mu, scale);
-      }
+        //rry=R0*exp(log(rrx)*(1/(1-mu))); // power-law function call
+
+        rry = rng_levy48(mu, scale); // levy function call
+      }while (rry > LARGESTFLIGHT);
       //printf("mu=%lf flight=%lf  \n",mu,rry);
 
       ell = rry;
@@ -201,33 +247,76 @@ void main() {
         discriminant = SQR(b) - 4 * a * c;
         //printf("discriminant = %lf\n a = %lf\n cx=%lf\n, cy=%lf\n", discriminant, a, cx, cy);
         if (discriminant < 0) {
+
+        	// time elapsed cell{
+        	  time_t curr_time;
+        	  struct tm *info;
+        	  time(&curr_time);
+        	  info = localtime(&curr_time);
+        	  printf("time %s\n", asctime(info));
+        	  //}
+
+        	  //debugging cell{
           //printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, phi=%lf, vx=%lf, vy=%lf\n", y, x, ynew, xnew, phi, vx, vy);
           //printf("a=%lf, b=%lf, c=%lf\n", a, b, c);
           //printf("rho=%lf, sigma=%lf, delta=%lf, L=%lf, ell=%lf, LC=%lf, rry=%lf", rho, sigma, Delta, L, scale, LC, rry);
           printf("\n Serious discriminant error for outer radius %lf \n", discriminant);
-          exit(0);
+          nointersec_array[tt = mu / MU_INC]++;
+          printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+          xnew = x;
+          ynew = y;
+          //exit(0);
+          //}
         }
         delta = sqrt(discriminant);
 
         t = (-b + delta) / (2 * a);
         //printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
-        if ((-0.001 <= t) && (t <= 1.001)) {
+        if ((-0.1 <= t) && (t <= 1.1)) {
           targetnotfound = 0;
           travel += ell * t; // t is the fraction traversed
           outside_histogram[tt = mu / MU_INC]++;
         } else {
+
+		  // time elapsed cell{
+			 time_t curr_time;
+			  struct tm *info;
+			  time(&curr_time);
+			  info = localtime(&curr_time);
+			  printf("time %s\n", asctime(info));
+			  //}
           printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew, t);
           t = (-b - delta) / (2 * a);
           printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew, t);
 
-          printf("ell=%lf, discriminant=%lf, delta=%lf, b=%lf", ell, discriminant, delta, b);
-          if ((-0.001 <= t) && (t <= 1.001)) {
+          printf("ell=%lf, discriminant=%lf, delta=%lf, b=%lf\n", ell, discriminant, delta, b);
+          printf("mu = %lf\n", mu);
+          nointersec_array[tt = mu / MU_INC]++;
+          xnew = x;
+          ynew = y;
+          printf("pos (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew);
+          printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+          printf("time %s\n", asctime(info));
+          if ((-0.1 <= t) && (t <= 1.1)) {
             targetnotfound = 0;
             travel += ell * t; // t is the fraction traversed
             outside_histogram[tt = mu / MU_INC]++;
           } else {
-            printf("\n Serious error regarding outer radius\n");
-            exit(0);
+        	  // time elapsed cell{
+        	     time_t curr_time;
+        	      struct tm *info;
+        	      time(&curr_time);
+        	      info = localtime(&curr_time);
+        	      printf("time %s\n", asctime(info));
+        	      //}
+
+            printf("\n Serious error regarding outer radius, %lf\n", discriminant);
+            xnew = x;
+            ynew = y;
+            printf("pos (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew);
+            nointersec_array[tt = mu / MU_INC]++;
+            printf("distance = %lf, flight numbers = %d , mu = %lf\n", distance_histogram[tt = mu / MU_INC], flight_histogram[tt = mu / MU_INC], mu);
+            //exit(0);
           }
         }
       } else
@@ -259,9 +348,11 @@ void main() {
         }
         // else the negative discriminant means there no intersection
       } {
-        //printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
-        //printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
-        //exit(0);
+        printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
+        printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
+        printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+        printf("discriminant = %lf", discriminant);
+        exit(0);
       }
       x = xnew;
       y = ynew;
@@ -276,16 +367,19 @@ void main() {
     flight_histogram[tt = mu / MU_INC] = 0;
     inside_histogram[tt = mu / MU_INC] = 0;
     outside_histogram[tt = mu / MU_INC] = 0;
+    nointersec_array[tt = mu / MU_INC] = 0;
   }
 
   for (mu = 1.1; mu <= 3.1; mu += MU_INC) {
 
     while (distance_histogram[tt = mu / MU_INC] < TOTALDISTANCE) {
 
-      initialize_search(RV); //put searcher in the right position
-      find_target(0.1); // search until target found
+      initialize_search(); //put searcher in the right position
+      find_target(); // search until target found
       distance_histogram[tt = mu / MU_INC] += travel; // sum the distances and store
       target_histogram[tt = mu / MU_INC]++;
+      tt = mu / MU_INC;
+      //printf("distance = %lf , mu = %lf\n", distance_histogram[tt], mu);
     }
   }
   fflush(stdout);
@@ -311,7 +405,8 @@ void main() {
   //BC1 = first boundary condition defined as x=LC
   //BC2 = second boundary condition defined as x=R0*1.0001
 
-
+  clock_t toc = clock();
+  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
   //Creating the csv file and storage the data in it
   FILE * arq;
   arq = fopen("concentric_levy.csv", "w+");
@@ -328,4 +423,11 @@ void main() {
   }
   fclose(arq);
 
+
+  FILE *arq1;
+  arq1 = fopen("no_intersec.csv", "w+");
+  for(mu = 1.1; mu <= 3.1; mu += MU_INC){
+  fprintf(arq1, "%ld\n", nointersec_array[tt = mu / MU_INC]);
+  }
+  fclose(arq1);
 }
