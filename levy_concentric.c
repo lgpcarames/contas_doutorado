@@ -20,10 +20,9 @@ static float sqrarg;
 #define Delta 0.0001
 
 // levy distribution range max
-#define TOTALRANGE 99999999999999999999
-
+#define TOTALRANGE 99999999
 // total distance traveled before stopping
-#define TOTALDISTANCE 1000
+#define TOTALDISTANCE 100
 
 //smallest step
 #define R0 1
@@ -72,7 +71,7 @@ void main() {
   double scale = sigma * RV;
 
   // maximum levy step size
-  int LARGESTFLIGHT = 10000*L;
+  int LARGESTFLIGHT = 1000*L;
 
 
   // function to evaluate the time elapsed
@@ -116,7 +115,7 @@ void main() {
   static long
   nointersec_array[MAX_MU_ENTRIES]; // debugging
 
-  /* Truncated - levy function definition
+  /* Truncated - levy function definition*/
   double rng_levy48(double alpha, double rr) {
     double ee, phi;
     double mu = alpha - 1;
@@ -140,22 +139,7 @@ void main() {
     }
     //printf("Value of f=%lf\n", f);
     return f;
-  }*/
-
-
-  /*modified function*/
-  double rng_levy48(double alpha, double rr){
-    double ee, phi;
-    double mu=alpha-1;
-    double mu1=mu-1;
-    double xmu=1/mu;
-    double xmu1=xmu-1;
-    phi=(drand48()-0.5)*PI;
-    ee=-log(drand48());
-    //double f;
-    return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-    }
-
+  }
 
   //// initializer function
   void initialize_search() {
@@ -352,7 +336,7 @@ void main() {
         printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
         printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
         printf("discriminant = %lf", discriminant);
-        exit(0);
+        //exit(0);
       }
       x = xnew;
       y = ynew;
@@ -384,9 +368,9 @@ void main() {
   }
   fflush(stdout);
 
-  /*printf(" mu eta distance targets number-of-flights inside outside\n");
+  printf(" mu eta distance targets number-of-flights inside outside\n");
 
-  print result array
+  /*print result array*/
   for (mu=1.1;mu<=3.1;mu+=MU_INC){
   printf("%lf %lg %lf %ld %ld %ld %ld\n",
   mu,
@@ -398,7 +382,7 @@ void main() {
   outside_histogram[ tt=mu/MU_INC]);
 
   fflush(stdout);
-  }*/
+  }
 
   //ell = Scale parameter
   //RE = External Radius
@@ -423,11 +407,4 @@ void main() {
   }
   fclose(arq);
 
-
-  FILE *arq1;
-  arq1 = fopen("no_intersec.csv", "w+");
-  for(mu = 1.1; mu <= 3.1; mu += MU_INC){
-  fprintf(arq1, "%ld\n", nointersec_array[tt = mu / MU_INC]);
-  }
-  fclose(arq1);
 }
