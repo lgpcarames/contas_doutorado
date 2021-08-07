@@ -22,7 +22,7 @@ static float sqrarg;
 // levy distribution range max
 #define TOTALRANGE 99999999
 // total distance traveled before stopping
-#define TOTALDISTANCE 100
+#define TOTALDISTANCE 5000
 
 //smallest step
 #define R0 1
@@ -249,7 +249,7 @@ void main() {
           printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
           xnew = x;
           ynew = y;
-          //exit(0);
+          exit(0);
           //}
         }
         delta = sqrt(discriminant);
@@ -300,7 +300,7 @@ void main() {
             printf("pos (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew);
             nointersec_array[tt = mu / MU_INC]++;
             printf("distance = %lf, flight numbers = %d , mu = %lf\n", distance_histogram[tt = mu / MU_INC], flight_histogram[tt = mu / MU_INC], mu);
-            //exit(0);
+            exit(0);
           }
         }
       } else
@@ -332,11 +332,6 @@ void main() {
         }
         // else the negative discriminant means there no intersection
       } {
-        printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
-        printf(" At tt= %lf the walker is at (%lf,%lf) \n" ,t,x+cx*t,y+cy*t);
-        printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
-        printf("discriminant = %lf", discriminant);
-        //exit(0);
       }
       x = xnew;
       y = ynew;
