@@ -22,7 +22,7 @@ static float sqrarg;
 // levy distribution range max
 //#define TOTALRANGE 99999999
 // total distance traveled before stopping
-#define TOTALDISTANCE 5000
+#define TOTALDISTANCE 50000
 
 //smallest step
 #define R0 1
@@ -74,7 +74,7 @@ void main() {
   double scale = sigma * RV;
 
   // levy distribution range max
-  double TOTALRANGE = 4*L;
+  double TOTALRANGE = 0.8*L;
   // maximum levy step size
   int LARGESTFLIGHT = 1000*L;
 
@@ -93,6 +93,15 @@ void main() {
   /// library functions
   double drand48();
   void exit(int status);
+
+/*  double tr_drand48(){
+  double value;
+  	  do{
+  		value = drand48();
+  	  }while(0.000000001 < value < 0.999999999);
+  	  return value;
+  }*/
+
 
   //// travel distance
   static double travel;
@@ -198,6 +207,7 @@ void main() {
       ell = rry;
       flight_histogram[tt = mu / MU_INC]++;
 
+
       phi = drand48() * PI;
       vx = cos(phi);
       vy = sin(phi);
@@ -249,12 +259,14 @@ void main() {
           //printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, phi=%lf, vx=%lf, vy=%lf\n", y, x, ynew, xnew, phi, vx, vy);
           //printf("a=%lf, b=%lf, c=%lf\n", a, b, c);
           //printf("rho=%lf, sigma=%lf, delta=%lf, L=%lf, ell=%lf, LC=%lf, rry=%lf", rho, sigma, Del, L, scale, LC, rry);
-        	  printf("1st issue: reach external radius, but discriminant is lesser than zero.\n");
+        	  printf("Error 01: reach external radius, but discriminant is less than zero.\n");
         	  printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, cy=%lf, cx=%lf\n", y, x, ynew, xnew, cy, cx);
         	  printf("rry=%lf, phi=%lf, vx=%lf, vy=%lf\n", rry, phi, vx, vy);
-        	  printf("rho=%lf, sigma=%lf, Del=%lf, L=%lf, LC=%lf\n", rho, sigma, Del, L, LC);
+        	  printf("rho=%lf, sigma=%lf, Del=%lf, L=%lf, LC=%lf, TOTALRANGE=%lf\n", rho, sigma, Del, L, LC, TOTALRANGE);
         	  printf("a=%lf, b=%lf, c=%lf, delta=%lf, t=%lf\n", a, b, c, delta, t);
         	  printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+        	  clock_t toc = clock();
+        	  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
           //          printf("\n Serious discriminant error for outer radius %lf \n", discriminant);
 //          xnew = x;
 //          ynew = y;
@@ -264,15 +276,20 @@ void main() {
         delta = sqrt(discriminant);
 
         t = (-b + delta) / (2 * a);
-       // printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
+        //printf("a=%.15f, b=%.15f, c=%.15f, delta=%.15f, t=%.15f\n", a, b, c, delta, t);
+        //printf(" (%.15f,%.15f) --> (%.15f,%.15f) target at t= %.15f \n" ,x,y,xnew,ynew,t);
+        //printf("rry=%.15f, phi=%.15f, vx=%.15f, vy=%.15f\n", rry, phi, vx, vy);
         if ((-0.1 <= t) && (t <= 1.1)) {
           targetnotfound = 0;
           travel += ell * t; // t is the fraction traversed
           outside_histogram[tt = mu / MU_INC]++;
         } else {
-        	printf("a=%lf, b=%lf, c=%lf, delta=%lf, t=%lf\n", a, b, c, delta, t);
-        	printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
-        	t = (-b - delta) / (2 * a);
+        	printf("first t solution [t = (-b + delta)/(2*a)] is not in the interval 0 < t < 1.\n");
+        	 printf("a=%.15f, b=%.15f, c=%.15f, delta=%.15f, t=%.15f\n", a, b, c, delta, t);
+        	 printf(" (%.15f,%.15f) --> (%.15f,%.15f) target at t= %.15f \n" ,x,y,xnew,ynew,t);
+        	 printf("rry=%.15f, phi=%.15f, vx=%.15f, vy=%.15f\n", rry, phi, vx, vy);
+        	 printf("trying the 2nd solution:\n");
+        	 t = (-b - delta) / (2 * a);
           if ((-0.1 <= t) && (t <= 1.1)) {
             targetnotfound = 0;
             travel += ell * t; // t is the fraction traversed
@@ -286,19 +303,23 @@ void main() {
         	      printf("time %s\n", asctime(info));
         	      //}
 
-            	  printf("2nd issue: reach external radius, but t is not in the interval 0<t<1.\n");
-            	  printf("y=%lf, x=%lf, ynew=%lf, xnew=%lf, cy=%lf, cx=%lf\n", y, x, ynew, xnew, cy, cx);
-            	  printf("rry=%lf, phi=%lf, vx=%lf, vy=%lf\n", rry, phi, vx, vy);
-            	  printf("rho=%lf, sigma=%lf, Del=%lf, L=%lf, LC=%lf\n", rho, sigma, Del, L, LC);
-            	  printf("a=%lf, b=%lf, c=%lf, delta=%lf, t=%lf\n", a, b, c, delta, t);
-            	  printf("distance = %lf , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+            	  printf("Error 02: reach external radius, but t is not in the interval 0<t<1.\n");
+            	  double walker_pos = SQR(xnew)+SQR(ynew);
+            	  printf("y=%.15f, x=%.15f, ynew=%.15f, xnew=%.15f, cy=%.15f, cx=%.15f\n", y, x, ynew, xnew, cy, cx);
+            	  printf("rry=%.15f, phi=%.15f, vx=%.15f, vy=%.15f\n", rry, phi, vx, vy);
+            	  printf("a=%.15f, b=%.15f, c=%.15f, delta=%.15f, t=%.15f\n", a, b, c, delta, t);
+            	  printf("rho=%lf, sigma=%lf, Del=%lf, L^2=%.15f, LC=%lf, TOTALRANGE=%lf, walker position1 = %lf\n", rho, sigma, Del, SQR(L), LC, TOTALRANGE, walker_pos);
+            	  printf("distance = %.15f , mu = %lf\n", distance_histogram[tt = mu / MU_INC], mu);
+            	  clock_t toc = clock();
+            	  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
             	  //printf("\n Serious error regarding outer radius, %lf\n", discriminant);
-            	  //xnew = x;
-            	  //ynew = y;
+            	  /*
             	  //printf("pos (%lf,%lf) --> (%lf,%lf) target at t= %lf \n", x, y, xnew, ynew);
             	  //nointersec_array[tt = mu / MU_INC]++;
             	  //printf("distance = %lf, flight numbers = %d , mu = %lf\n", distance_histogram[tt = mu / MU_INC], flight_histogram[tt = mu / MU_INC], mu);
-            exit(0);
+            exit(0);*/
+           	  	xnew = x;
+            	ynew = y;
           }
         }
       } else
