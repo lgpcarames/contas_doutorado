@@ -6,6 +6,9 @@
 C_SRCS += \
 ../levy_concentric.c 
 
+O_SRCS += \
+../levy_concentric.o 
+
 OBJS += \
 ./levy_concentric.o 
 
