@@ -11,21 +11,28 @@ static float sqrarg;
 #define PI 3.14159265358979323846
 
 // rho, delta, sigma parameters
-#define rho 0.0001
-#define sigma 1
-#define Del 0.0001
+//#define rho 0.0001
+//#define sigma 1
+//#define Del 0.0001
 
 
 // External radius, starting point and scale factor
-#define L (1/sqrt(rho*PI))              //linear size (outer radius)
-#define LC (RV*(Del + 1))                      //distance from closest target (from center)
-#define scale (sigma*RV)
+//#define L (1/sqrt(rho*PI))              //linear size (outer radius)
+//#define LC (RV*(Del + 1))                      //distance from closest target (from center)
+//#define LC 1.00000000001
+//#define scale (sigma*RV)
 
-//#define R0 1                         //smallest step
+//double L=50;
+//double LC=1.00000000001;
+//double R0=1;
+
+#define L 50              //linear size (outer radius)
+#define LC 1.0001                      //distance from closest target (from center)
+#define R0 0.01                         //smallest step
 
 
 #define TOTALDISTANCE 100000000         // total distance traveled before stopping
-#define LARGESTFLIGHT (L*1000)       // maximum levy step size
+#define LARGESTFLIGHT (1000*L)       // maximum levy step size
 
 // the search space is a 2D torus of size LxL
 // the periodic boundary conditions (BC) are chosen so that
@@ -78,10 +85,11 @@ double rng_levy48(double alpha, double rr){
 
 
 void  initialize_search(){
-	double phi;                        // random angle
+	//double phi;                        // random angle
 
 	x=LC;
-//	x=1.00000000000000000001;
+
+	//x=1.00000000001;
 	y=0;
 
 	// walker always starts at this position.
@@ -118,11 +126,13 @@ void find_target(){
 	rry= LARGESTFLIGHT+1;
 	while (rry < 0 || rry>LARGESTFLIGHT)
 	  {
-	rrx=drand48();
+	//rrx=drand48();
 	//rry=R0*exp(log(rrx)*(1/(1-mu)));
 	//rry=scale*exp(log(rrx)*(1/(1-mu)));
 
-	rry=rng_levy48(mu, scale);
+	rry=rng_levy48(mu, R0);
+	//rry=rng_levy48(mu, scale);
+
 	  }
 	//    printf("mu=%lf flight=%lf  \n",mu,rry);
 
@@ -270,7 +280,8 @@ void main(){
       }
   }
   
-  printf("rho=%f, L=%f, sigma=%f, scale=%f, delta=%f, LC=%f\n", rho, L, sigma, scale, Del, LC);
+//  printf("rho=%f, L=%d, sigma=%f, delta=%f, LC=%f\n", rho, L, Del, LC);
+  //printf("L=%f, LC=%f, R0=%f\n", L, LC, R0);
 
   printf("\n#% mu, eta, distance, targets, number-of-flights, inside outside\n");
   
@@ -278,7 +289,7 @@ void main(){
   for (mu=1.1;mu<=3.1;mu+=MU_INC){
     printf("%lf %lg %lf %ld %ld %ld %ld\n",
 	   mu,
-	   target_histogram[ tt=mu/MU_INC]/distance_histogram[ tt=mu/MU_INC]/(rho*RV) ,
+	   target_histogram[ tt=mu/MU_INC]/distance_histogram[ tt=mu/MU_INC]*(SQR(L)/RV) ,
 	   distance_histogram[ tt=mu/MU_INC],
 	   target_histogram[ tt=mu/MU_INC],
 	   flight_histogram[ tt=mu/MU_INC],
@@ -295,7 +306,7 @@ void main(){
   for (mu = 1.1; mu <= 3.1; mu += MU_INC) {
     fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
       mu,
-      target_histogram[tt = mu / MU_INC] / distance_histogram[tt = mu / MU_INC]/(rho*RV),
+      target_histogram[tt = mu / MU_INC] / distance_histogram[tt = mu / MU_INC]*(SQR(L)/RV),
       distance_histogram[tt = mu / MU_INC],
       target_histogram[tt = mu / MU_INC],
       flight_histogram[tt = mu / MU_INC],
