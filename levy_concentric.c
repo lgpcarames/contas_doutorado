@@ -1,4 +1,4 @@
-/* levy walk search inside an annulus */ 
+/* levy walk search inside an annulus */
 #include <stdio.h>
 static float sqrarg;
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
@@ -46,14 +46,14 @@ static float sqrarg;
 
 
 
-// library functions 
-double drand48();                   
+// library functions
+double drand48();
 void exit(int status);
 
 long n;
-static double travel;                // travel distance 
-static double x,y;                   //searcher coordinate 
-static double mu;                    //levy index alpha + 1 
+static double travel;                // travel distance
+static double x,y;                   //searcher coordinate
+static double mu;                    //levy index alpha + 1
 static int tt;                       // dummy for easier type casting
 
 static double
@@ -66,9 +66,9 @@ static long
 inside_histogram[MAX_MU_ENTRIES];    // debugging
 static long
 outside_histogram[MAX_MU_ENTRIES];    // debugging
- 
 
 
+//rry=rng_levy48(mu, R0);
 /////////////////
 double rng_levy48(double alpha, double rr){
   double ee, phi;
@@ -177,9 +177,9 @@ void find_target(){
 	discriminant = SQR(b) - 4*a*c;
 	if (discriminant<0) {printf("\n Serious discriminant error for outer radius\n"); exit(0);}
 	delta=sqrt(discriminant);
-	
+
 	t= ( - b + delta )/(2*a);
-	//printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
+	//printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
 	if ((-0.001<=t)&&(t<=1.001))
 	  {
 		targetnotfound=0;
@@ -225,7 +225,7 @@ void find_target(){
 		if ((0<=t) && (t<=1))
 		  // target found
 		  {
-		//		printf("inside!!  (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t); 
+		//		printf("inside!!  (%lf,%lf) --> (%lf,%lf) target at t= %lf \n" ,x,y,xnew,ynew,t);
 		targetnotfound=0;
 		travel+=ell*t; // t is the fraction traversed
 		inside_histogram[ tt=mu/MU_INC]++;
@@ -245,30 +245,30 @@ void find_target(){
 	if (targetnotfound) travel+=ell;
 	}
 }
-  
+
 void main(){
-  int i;
+  //int i;
   // function to evaluate the time elapsed
   clock_t tic = clock();
   time_t curr_time;
   struct tm *info;
   time(&curr_time);
   info = localtime(&curr_time);
-  
+
   //initialize result array
-  for (mu=1.1;mu<=3.1;mu+=MU_INC) {
+  for (mu=1.1;mu<3.1;mu+=MU_INC) {
     distance_histogram[ tt=mu/MU_INC]=0;
     target_histogram[ tt=mu/MU_INC]=0;
     flight_histogram[ tt=mu/MU_INC]=0;
     inside_histogram[ tt=mu/MU_INC]=0;
     outside_histogram[ tt=mu/MU_INC]=0;
   }
-  
-  
 
-  
-  
-  for (mu=1.1;mu<=3.1;mu+=MU_INC){
+
+
+
+
+  for (mu=1.1;mu<3.1;mu+=MU_INC){
 
     while (distance_histogram[tt=mu/MU_INC]<TOTALDISTANCE)
       {
@@ -279,14 +279,14 @@ void main(){
 	//      printf(" ding ding %d %lf \n",i,mu);
       }
   }
-  
+
 //  printf("rho=%f, L=%d, sigma=%f, delta=%f, LC=%f\n", rho, L, Del, LC);
   //printf("L=%f, LC=%f, R0=%f\n", L, LC, R0);
 
   printf("\n#% mu, eta, distance, targets, number-of-flights, inside outside\n");
-  
+
   //print result array
-  for (mu=1.1;mu<=3.1;mu+=MU_INC){
+  for (mu=1.1;mu<3.1;mu+=MU_INC){
     printf("%lf %lg %lf %ld %ld %ld %ld\n",
 	   mu,
 	   target_histogram[ tt=mu/MU_INC]/distance_histogram[ tt=mu/MU_INC]*(SQR(L)/RV) ,
@@ -303,7 +303,7 @@ void main(){
   FILE * arq;
   arq = fopen("concentric_levy.csv", "w+");
   fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
-  for (mu = 1.1; mu <= 3.1; mu += MU_INC) {
+  for (mu = 1.1; mu < 3.1; mu += MU_INC) {
     fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
       mu,
       target_histogram[tt = mu / MU_INC] / distance_histogram[tt = mu / MU_INC]*(SQR(L)/RV),
@@ -320,7 +320,7 @@ void main(){
 
 
 }
-  
+
 
 
 
