@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <stdlib.h>
 
 static float sqrarg;
 
@@ -15,6 +16,7 @@ static float sqrarg;
 #define R0 1    // Scale factor
 #define LC 1.0001   // Searcher start point
 
+#define X_OUT 2.00
 #define TOTALDISTANCE 1000000000 // total distance before stoping
 #define LARGESTFLIGHT (L*1000)  // maximum levy step size
 
@@ -30,6 +32,11 @@ static double travel; // travel distance
 static double x,y; // searcher position
 static double alpha; // levy index alpha
 static int tt; // dummy for easy type casting
+
+static double t1;
+static double t2;
+static double t3;
+static double t4;
 
 static double distance_histogram[MAX_ALPHA_ENTRIES];
 static long target_histogram[MAX_ALPHA_ENTRIES];
@@ -49,6 +56,60 @@ double rng_levy48(double alpha, double rr){
   return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
   }
 
+    
+double pickmin(double n1, double n2, double n3, double n4){
+    double minimum_n = fmin(fmin(n1, n2), fmin(n3, n4));
+
+    return minimum_n;
+}
+
+
+void interval_solution(double x, double y, double xnew, double ynew, double cx, double cy, double rv, double l){
+    double a, b, c_in, c_out, discriminant_in, discriminant_out, delta_in, delta_out;
+    t1=X_OUT;
+    t2=X_OUT;
+    t3=X_OUT;
+    t4=X_OUT;
+    
+    
+    a=SQR(cx)+SQR(cy);
+
+    b=2*cx*x+2*cy*y;
+
+    c_in = SQR(x)+SQR(y)-SQR(RV);
+    c_out = SQR(x)+SQR(y)-SQR(L);
+
+    discriminant_in=SQR(b)-4*a*c_in;
+    discriminant_out=SQR(b)-4*a*c_out;
+
+    if(discriminant_in>0){
+        delta_in = sqrt(discriminant_in);
+        t1=(-b+delta_in)/(2*a);
+        t2=(-b-delta_in)/(2*a);
+        if(t1<0){t1=X_OUT;}
+        if(t2<0){t2=X_OUT;}
+    }
+
+    if(discriminant_out>0){
+        delta_out = sqrt(discriminant_out);
+        t3=(-b+delta_out)/(2*a);
+        t4=(-b-delta_out)/(2*a);
+        if(t3<0){t3=X_OUT;}
+        if(t4<0){t4=X_OUT;}
+    }
+}
+
+//this function will verify what annulus the searcher have found
+void annulus_intersect(double n1, double n2, double n3, double n4){
+    double tmin = pickmin(n1, n2, n3, n4);
+
+    if(n1 == tmin || n2 == tmin){
+        inside_histogram[tt==alpha/ALPHA_INC];
+    }
+    if(n3 == tmin || n4 == tmin){
+        outside_histogram[tt==alpha/ALPHA_INC];
+    }
+}
 
 // Defining the initialize_search() function
 
@@ -59,17 +120,15 @@ void initialize_search(){
 }
 
 
-// Defining the find_target() function
 void find_target(){
     double rrx, rry;                // Random number generation
     double vx, vy;                  // Velocity unit vector components
     double ell;                     // Levy walk jump size
     double phi;                     // Velocity angle
     short targetnotfound;           // Boolean for while loop
-    double xnew, ynew;              // farthest away possible new searcher position
-    double cx, cy,t,t2;             // parametrization variables, see below
-	double delta,discriminant;      // for the quadratic formula
-	double a,b,c;                   // quadratic formula...
+    double xnew, ynew, cx, cy;              // farthest away possible new searcher position
+    double t_min;
+
 
     // setting targetnotfound as false
     targetnotfound=1;
@@ -79,95 +138,42 @@ void find_target(){
     ell=0;
     
     while(targetnotfound){
-
-        // filter while loop
-
         rry = LARGESTFLIGHT+1;
-        while(rry<LARGESTFLIGHT || rry<0){
-            //rrx=drand48()
+        while(rry>LARGESTFLIGHT){
+            rrx=drand48();
             rry=rng_levy48(alpha, R0);
         }
-    
-        ell=rry;
-        flight_histogram[tt=alpha/ALPHA_INC]++;
 
-        phi=drand48()*PI;
-        vx=cos(phi);vy=sin(phi);
+        ell=rry;
+        flight_histogram[tt=alpha/ALPHA_INC];
+
+        phi = drand48()*PI;
+        vx=cos(phi); vy=sin(phi);
 
         xnew=x+ell*vx;
         ynew=y+ell*vy;
 
-        // parametrize in t according to
-        // x(t) = x + t (xnew-x) = x + cx t
-        // y(t) = y + t (ynew-x) = t + cy t
-        // this means that t=0 gives the original position and
-        // t=1 gives the final position.
-
         cx=xnew-x;
         cy=ynew-y;
 
-        // Now let us write (x(t))^2 + (y(t))^2= radius^2 and
-        // find the values of t.
-        // if t is complex then there is no intersection
-        // it t is real and inside  [0,1] then there is intersection
-        // with the circle of the given radius of the line segment
+    interval_solution(x, y, xnew, ynew, cx, cy, RV, L);
 
-        // So x^2+ cx^2 t^2 + 2 cx x t + y^2 + cy^2 t^2 + 2 cy y t -R^2=0
-        // t^2(cx^2 + cy^2) + t(2 cx x + 2 cy y) + x^2 + y^2 - R^2 =0
-        // So in the quadratic formula we will have
-        a=SQR(cx)+SQR(cy);
-        b= 2*cx*x+2*cy*y;
-        // c= x^2 + y^2 - R^2
+    t_min = pickmin(t1, t2, t3, t4);
 
-        // Searching if target is found in internal radius
+    if (0<t_min<1){
+        annulus_intersect(t1, t2, t3, t4);
+        targetnotfound=0;
+        travel+=ell*t_min; // t is the fraction traversed
 
-        c=SQR(x)+SQR(y)-SQR(RV);
-
-        discriminant=SQR(b)-4*a*c;
-        if(discriminant>=0){
-            delta=sqrt(discriminant);
-            t= ( - b + delta )/(2*a);
-            t2=( - b - delta )/(2*a);
-            if ((0<t2)&&(t2<t)&&(t<1)) t=t2;
-
-                if ((0<=t) && (t<=1))
-                    // target found
-                    {
-                    targetnotfound=0;
-                    travel+=ell*t; // t is the fraction traversed
-                    inside_histogram[ tt=alpha/ALPHA_INC]++;
-                }
-        }
-        else{
-            //Searching if the target is found in external radius
-            c=SQR(x)+SQR(y)-SQR(L);
-
-            discriminant=SQR(b)-4*a*c;
-
-            if(discriminant>=0){
-                delta=sqrt(discriminant);
-                t= ( - b + delta )/(2*a);
-        
-                if ((-0.001<=t)&&(t<=1.001)){
-                    targetnotfound=0;
-                    travel+=ell*t; // t is the fraction traversed
-                    outside_histogram[ tt=alpha/ALPHA_INC]++;
-                }
-            }
-            else{
-                t= ( - b - delta )/(2*a);
-                if ((-0.001<=t)&&(t<=1.001)){
-                    targetnotfound=0;
-                    travel+=ell*t; // t is the fraction traversed
-                    outside_histogram[ tt=alpha/ALPHA_INC]++;
-                }
-            }
-        }
-        x=xnew;
-        y=ynew;
-
-        if(targetnotfound) travel+=ell;
     }
+
+
+    x=xnew;
+    y=ynew;
+    if(targetnotfound) travel+=ell;
+
+    }
+
 
 
 }
