@@ -46,14 +46,14 @@ static long outside_histogram[MAX_ALPHA_ENTRIES];
 
 // Defining the levy alpha function
 double rng_levy48(double alpha, double rr){
-  double ee, phi;
-  double mu=alpha;
-  double mu1=mu-1;
-  double xmu=1/mu;
-  double xmu1=xmu-1;
-  phi=(drand48()-0.5)*PI;
-  ee=-log(drand48());
-  return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+    double ee, phi;
+    double mu=alpha;
+    double mu1=mu-1;
+    double xmu=1/mu;
+    double xmu1=xmu-1;
+    phi=(drand48()-0.5)*PI;
+    ee=-log(drand48());
+    return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
   }
 
     
@@ -70,8 +70,8 @@ void interval_solution(double x, double y, double xnew, double ynew, double cx, 
     t2=X_OUT;
     t3=X_OUT;
     t4=X_OUT;
-    
-    
+
+
     a=SQR(cx)+SQR(cy);
 
     b=2*cx*x+2*cy*y;
@@ -205,12 +205,12 @@ void main(){
   for (alpha=1.1;alpha<=3.1;alpha+=ALPHA_INC){
 
     while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
-      {
+    {
 	initialize_search(); //put searcher in the right position
 	find_target();  // search until target found
 	distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
 	target_histogram[tt=alpha/ALPHA_INC]++;
-      }
+    }
   }
   
 
