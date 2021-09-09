@@ -1,30 +1,33 @@
 #include <stdio.h>
 #include <math.h>
-#include <stdlib.h>
+
+
+#define X_OUT 1234.0
+#define L 50
+#define RV 1
+
 static float sqrarg;
-
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
-#define X_OUT 2.00
-static double t1;
-static double t2;
-static double t3;
-static double t4;
-    
-double theless(double n1, double n2, double n3, double n4){
-    double minimum_n = fmin(fmin(n1, n2), fmin(n3, n4));
 
-    return minimum_n;
-}
+static double t1, t2, t3, t4;
+double drand48();
+#define PI 3.14159265358979323846
+#define ALPHA_INC 0.1
+#define MAX_ALPHA_ENTRIES 100
+#define MAXVALUES 1000
+#define R0 1
 
 
-void interval_solution(double x, double y, double xnew, double ynew, double cx, double cy, double RV, double L){
+void interval_solution(double x, double y, double xnew, double ynew, double rv, double l){
     double a, b, c_in, c_out, discriminant_in, discriminant_out, delta_in, delta_out;
     t1=X_OUT;
     t2=X_OUT;
     t3=X_OUT;
     t4=X_OUT;
-    
-    
+    double cx, cy;
+
+    cx=xnew-x;
+    cy=ynew-y;
     a=SQR(cx)+SQR(cy);
 
     b=2*cx*x+2*cy*y;
@@ -50,29 +53,13 @@ void interval_solution(double x, double y, double xnew, double ynew, double cx, 
         if(t3<0){t3=X_OUT;}
         if(t4<0){t4=X_OUT;}
     }
+}
 
-
-
-}   
 
 
 int main(){
+	interval_solution(1.48647757755, 0.6610698557346, 56.1891894750417, 12.6129228753546, 1, 50);
+	printf("t1=%lf, t2=%lf, t3=%lf, t4=%lf\n", t1, t2, t3, t4);
 
-    double L=5.74;
-    double RV=1.02;
-    double x=3.53;
-    double y=-2.9;
-    double xnovo=-5.72319;
-    double ynovo=0.46105;
-    double cx=xnovo-x;
-    double cy=ynovo-y;
-
-
-    interval_solution(x, y, xnovo, ynovo, cx, cy, RV, L);
-
-    printf("t1=%.2f, t2=%.2f, t3=%.2f, t4=%.2f\n", t1, t2, t3, t4);
-
-    printf("%lf", theless(t1, t2, t3, t4));
-
-    return 0;
+	return 0;
 }

@@ -16,9 +16,9 @@ static float sqrarg;
 #define R0 1    // Scale factor
 #define LC 1.0001   // Searcher start point
 
-#define X_OUT 2.00
-#define TOTALDISTANCE 1000000000 // total distance before stoping
-#define LARGESTFLIGHT (L*1000)  // maximum levy step size
+#define X_OUT 123456.0
+#define TOTALDISTANCE 100000 // total distance before stoping
+#define LARGESTFLIGHT (L*10000)  // maximum levy step size
 
 
 #define ALPHA_INC 0.1  // step for incrementing alpha
@@ -26,6 +26,7 @@ static float sqrarg;
 
 // defining the function drand48()
 double drand48();
+void exit(int status);
 
 // defining some variables
 static double travel; // travel distance
@@ -104,10 +105,10 @@ void annulus_intersect(double n1, double n2, double n3, double n4){
     double tmin = pickmin(n1, n2, n3, n4);
 
     if(n1 == tmin || n2 == tmin){
-        inside_histogram[tt==alpha/ALPHA_INC];
+        inside_histogram[tt==alpha/ALPHA_INC]++;
     }
     if(n3 == tmin || n4 == tmin){
-        outside_histogram[tt==alpha/ALPHA_INC];
+        outside_histogram[tt==alpha/ALPHA_INC]++;
     }
 }
 
@@ -128,7 +129,7 @@ void find_target(){
     short targetnotfound;           // Boolean for while loop
     double xnew, ynew, cx, cy;              // farthest away possible new searcher position
     double t_min;
-
+    int contador=0;
 
     // setting targetnotfound as false
     targetnotfound=1;
@@ -138,14 +139,15 @@ void find_target(){
     ell=0;
     
     while(targetnotfound){
-        rry = LARGESTFLIGHT+1;
-        while(rry>LARGESTFLIGHT){
-            rrx=drand48();
+        //rry = LARGESTFLIGHT+1;
+        rry=rng_levy48(alpha, R0);
+        while(rry>LARGESTFLIGHT||rry<0){
+            //rrx=drand48();
             rry=rng_levy48(alpha, R0);
         }
 
         ell=rry;
-        flight_histogram[tt=alpha/ALPHA_INC];
+        flight_histogram[tt=alpha/ALPHA_INC]++;
 
         phi = drand48()*PI;
         vx=cos(phi); vy=sin(phi);
@@ -160,22 +162,33 @@ void find_target(){
 
     t_min = pickmin(t1, t2, t3, t4);
 
-    if (0<t_min<1){
+    if (0<t_min && t_min<1){
         annulus_intersect(t1, t2, t3, t4);
         targetnotfound=0;
         travel+=ell*t_min; // t is the fraction traversed
 
     }
 
-
+//    printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf, alpha=%lf \n" ,x,y,xnew,ynew,t_min, alpha);
+//    printf("ell=%lf\n", ell);
+    if(SQR(x)+SQR(y)>SQR(L)){
+    	printf(" (%lf,%lf) --> (%lf,%lf) target at t= %lf, alpha=%lf \n" ,x,y,xnew,ynew,t_min, alpha);
+    	printf("ell=%lf\n", ell);
+    	contador++;
+    	if(contador>10){
+    		printf("Parou!");
+    	}
     x=xnew;
     y=ynew;
+
+
     if(targetnotfound) travel+=ell;
 
     }
 
 
-
+    	//exit(0);
+    }
 }
 
 
@@ -202,7 +215,7 @@ void main(){
 
   
   
-  for (alpha=1.1;alpha<=3.1;alpha+=ALPHA_INC){
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
 
     while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
     {
@@ -217,7 +230,7 @@ void main(){
   printf("\n#% mu, eta, distance, targets, number-of-flights, inside outside\n");
   
   //print result array
-  for (alpha=1.1;alpha<=3.1;alpha+=ALPHA_INC){
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
     printf("%lf %lg %lf %ld %ld %ld %ld\n",
 	   alpha,
 	   target_histogram[ tt=alpha/ALPHA_INC]/distance_histogram[ tt=alpha/ALPHA_INC]*(SQR(L)/RV) ,
@@ -234,7 +247,7 @@ void main(){
   FILE * arq;
   arq = fopen("concentric_levy.csv", "w+");
   fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
-  for (alpha = 1.1; alpha <= 3.1; alpha += ALPHA_INC) {
+  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
     fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
       alpha,
       target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
