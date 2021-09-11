@@ -58,7 +58,7 @@ void interval_solution(double x, double y, double xnew, double ynew, double rv, 
 
 
 int main(){
-	interval_solution(1.48647757755, 0.6610698557346, 56.1891894750417, 12.6129228753546, 1, 50);
+	interval_solution(3.32, 0.79, 66.06, 22.49, 1, 50);
 	printf("t1=%lf, t2=%lf, t3=%lf, t4=%lf\n", t1, t2, t3, t4);
 
 	return 0;

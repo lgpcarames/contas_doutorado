@@ -125,7 +125,7 @@ void find_target(){
     double rrx, rry;                // Random number generation
     double vx, vy;                  // Velocity unit vector components
     double ell;                     // Levy walk jump size
-    double phi;                     // Velocity angle
+    double theta;                     // Velocity angle
     short targetnotfound;           // Boolean for while loop
     double xnew, ynew, cx, cy;              // farthest away possible new searcher position
     double t_min;
@@ -149,8 +149,8 @@ void find_target(){
         ell=rry;
         flight_histogram[tt=alpha/ALPHA_INC]++;
 
-        phi = drand48()*PI;
-        vx=cos(phi); vy=sin(phi);
+        theta = 2*drand48()*PI;
+        vx=cos(theta); vy=sin(theta);
 
         xnew=x+ell*vx;
         ynew=y+ell*vy;
