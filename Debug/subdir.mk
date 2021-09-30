@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../LevyDado.c 
+../levy_beta_1_teste.c 
 
 OBJS += \
-./LevyDado.o 
+./levy_beta_1_teste.o 
 
 C_DEPS += \
-./LevyDado.d 
+./levy_beta_1_teste.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
