@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #define PI 3.14159265358979323846
 #define ALPHA_INCREMENT 0.1
 #define ELL_INCREMENT 0.1
@@ -34,18 +35,40 @@ if((1.0-PRECISION_INTERVAL)<mu && mu<(1.0+PRECISION_INTERVAL)){
 }
 
 
+/*  Função rng_levy48 dependendo de ell
+double rng_levy48(double alpha, double rr){
+double ee, phi;
+double mu=alpha;
+double mu1=mu-1;
+double xmu=1/mu;
+double xmu1=xmu-1;
+phi=(drand48()-0.5)*PI;
+ee=-log(drand48());
+return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+}
+*/
+
+
 
 int main(){
+	// function to evaluate the time elapsed
+	clock_t tic = clock();
+	time_t curr_time;
+	struct tm *info;
+	time(&curr_time);
+	info = localtime(&curr_time);
+
 
 	// o alpha assume o nome de index no nosso programa
 	double alpha;
 	double ell;
 	int values;
 	double rry;
+	double beta=1;
 
 /* Gerando todos os valores de ell e mu*/
 	FILE *arq1;
-	arq1 = fopen("dados_levy_teste.csv", "w+");
+	arq1 = fopen("dados_levy_teste_beta_1.csv", "w+");
 
 	for(alpha=0.1;alpha<2.1;alpha+=ALPHA_INCREMENT){
 		for(ell=0.1;ell<=10;ell/=ELL_INCREMENT){
@@ -63,13 +86,14 @@ int main(){
 	for(alpha=0.1; alpha<2.1; alpha+=ALPHA_INCREMENT){
 	for(ell=0.1;ell<=10;ell/=ELL_INCREMENT){
 		if((2.0-PRECISION_INTERVAL<alpha && alpha<2.0+PRECISION_INTERVAL) && (10.0-PRECISION_INTERVAL<ell && ell<10.0+PRECISION_INTERVAL)){
-			rry = rng_levy48(alpha, ell, 1.00);
-
+			rry = rng_levy48(alpha, ell, beta);
+			//rry = rng_levy48(alpha, ell);
 			fprintf(arq1, "%lf \n", rry);
 		}
 		else{
 
-			rry = rng_levy48(alpha, ell, 1.00);
+			rry = rng_levy48(alpha, ell, beta);
+			//rry = rng_levy48(alpha, ell);
 			fprintf(arq1, "%lf,", rry);
 		}
 	}
@@ -78,5 +102,8 @@ int main(){
 
 	fclose(arq1);
 
+
+	clock_t toc = clock();
+	printf("Elapsed: %f seconds", (double)(toc - tic)/CLOCKS_PER_SEC);
 	return 0;
 }

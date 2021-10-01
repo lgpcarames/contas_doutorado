@@ -1,0 +1,1441 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Anotações testes funções programa concentric_levy.c
+\end_layout
+
+\begin_layout Standard
+Para todos os casos de estudo, o caminhante partirá do mesmo ponto 
+\begin_inset Formula $\left(x,y\right)=\left(1.0001,0\right)$
+\end_inset
+
+, com raio interno, 
+\begin_inset Formula $RV=1$
+\end_inset
+
+ e raio externo 
+\begin_inset Formula $L=50$
+\end_inset
+
+.
+ Consideraremos também o fator de escala da função de Levy como 
+\begin_inset Formula $R0=1$
+\end_inset
+
+.
+ Também seguiremos a mesma notação empregada no programa para que não haja
+ confusão.
+\end_layout
+
+\begin_layout Standard
+Consideraremos também o valor 12345 como padrão para as soluções não reais.
+ Isso não influencia no no fluxo do programa, pois ele só admitirá valores
+ de 
+\begin_inset Formula $t$
+\end_inset
+
+ válidos, caso estes sejam reais e estejam num intervalo 
+\begin_inset Formula $\left[0,1.0001\right].$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Casos em que não há a intersecção
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=\left(16,10\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(16,10).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $(xnew,ynew)=(16,10)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+função intersect_solution
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=-6.666859269098747e-06, t2=-0.09231049292705763, t3=2.727184483314279, t4=-2.8195
+016431006055
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=-0.00000666685926909875, t2=-0.09231049292705763298, t3=2.72718448331427909537,
+ t4=-2.81950164310060547024
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=\left(1,0.5\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(1,0d5).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $(xnew,ynew)=(1,0.5)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=1234.0, t2=1234.0, t3=99.98039203978405, t4=-99.97959195981605
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=12345.0, t2=12345.0, t3=99.98039203978404998452, t4=-99.97959195981604807457
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(48.1,13.6)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(48d1,13d6).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $(xnew,ynew)=(48.1,13.6)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=-2.123155609254139e-06, t2=-0.03919683049437032, t3=1.0002917395952062,
+ t4=-1.0394906932451857
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=-0.00000212315560925414, t2=-0.03919683049437031747, t3=1.00029173959520623072,
+ t4=-1.03949069324518572621
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(2.0333008977153,49.7314696763481)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(2d0333008977153,49d7314696763481).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $(xnew,ynew)=(2.0333008977153,49.7314696763481)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=-0.00011172724245621949, t2=-0.0007235068214124715, t3=1.0045640707302101,
+ t4=-1.0053993047940788
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=-0.00011172724245621949, t2=-0.00072350682141247152, t3=1.00456407073021014575,
+ t4=-1.00539930479407879638
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Section
+Casos em que há intersecção com o anel interno
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.98,-0.02)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(0d98,-0d02).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.98,-0.02)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=49.99940268430962, t2=0.004975370689685561, t3=1788.1797629207113, t4=-1738.17538
+48657117
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=49.99940268430962220236, t2=0.00497537068968556106, t3=1788.17976292071125499206
+, t4=-1738.17538486571174871642
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.2,-0.2)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(0d2,-0d2).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.2,-0.2)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=2.3527919707589575, t2=0.00012498476743376798, t3=61.80251891383345, t4=-59.44960
+195830706
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.35279197075895751823, t2=0.00012498476743376798, t3=61.80251891383345252962,
+ t4=-59.44960195830706339848
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.9993216256643,0.037071687574)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(0d9993216256643,0d037071687574).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(0.9993216256643,0.037071687574)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.9846203956393016, t2=0.1477429452051195, t3=1348.7375015437676, t4=-1347.605138
+2029232
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=0.98462039563930159325, t2=0.14774294520511949136, t3=1348.73750154376762111497,
+ t4=-1347.60513820292317177518
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-0.9165,-0.4)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-0d9165,-0d4).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-0.9165,-0.4)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=1.0000072394661859, t2=5.217584148255427e-05, t3=26.037438367707907, t4=-25.03737
+895240024
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=1.00000723946618585991, t2=0.00005217584148255427, t3=26.03743836770790665014,
+ t4=-25.03737895240023902943
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-0.91652,-0.39999)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-0d91652,-0d39999).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-0.91652,-0.39999)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.9999997624714996, t2=5.2175297017642856e-05, t3=26.0372059286786, t4=-25.037153
+99091008
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=0.99999976247149957587, t2=0.00005217529701764286, t3=26.03720592867859906505,
+ t4=-25.03715399091008109167
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-10,-2)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-10,-2).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-10,-2)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.1760070114210459, t2=9.090841472961114e-06, t3=4.560076024944426, t4=-4.3840599
+22681907
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-40.1104,-29.8522)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-40.1104,-29.8522).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-40.1104,-29.8522)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.03185420787318223, t2=2.4325327246000522e-06, t3=1.0000003871875076, t4=-0.9681
+437467816009
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Section
+Casos em que há intersecção com o anel externo
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(47.3695598,16.0038998)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(47d3695598,16d0038998).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(47.3695598,16.0038998)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=-2.1566047144467114e-06, t2=-0.03854252137900464, t3=0.9999999990919498,
+ t4=-1.0385446770756688
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(60,20)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(60,20).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(60,20)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=-1.6949278652344454e-06, t2=-0.030405921353909574, t3=0.7873790671792108,
+ t4=-0.8177866834609856
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-40.00016,-29.99979)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-40d00016,-29d99979).png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-40.00016,-29.99979)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.03177146366891331, t2=2.439074216843439e-06, t3=0.9999999606162676, t4=-0.96822
+60578731374
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(14000000000,10000000000)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(14000000000,10000000000)pt1.png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(14000000000,10000000000)$
+\end_inset
+
+ pt1.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(14000000000,10000000000)pt2.png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(14000000000,10000000000)$
+\end_inset
+
+ pt2.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=0.03177146366891331, t2=2.439074216843439e-06, t3=0.9999999606162676, t4=-0.96822
+60578731374
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\begin_layout Subsection
+Caso 
+\begin_inset Formula $\left(xnew,ynew\right)=(-14000000000,-10000000000)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-14000000000,-10000000000)pt1.png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-14000000000,-10000000000)$
+\end_inset
+
+ pt1.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figs/(-14000000000,-10000000000)pt2.png
+	lyxscale 20
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gráfico 
+\begin_inset Formula $\left(xnew,ynew\right)=(-14000000000,-10000000000)$
+\end_inset
+
+ pt2.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Valor esperado da intersect_solution:
+\end_layout
+
+\begin_layout Standard
+t1=9.459691101249486e-11, t2=7.143039367386646e-15, t3=2.9532965853174935e-09,
+ t4=-2.8586925312656307e-09
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Obtido:
+\end_layout
+
+\begin_layout Standard
+t1=2.991800502339939, t2=1.000008861351560, t3=51.927698853317843, t4=-47.9358894896
+26348
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Passou.
+\end_layout
+
+\end_body
+\end_document

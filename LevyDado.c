@@ -64,7 +64,7 @@ double rng_levy48(double alpha, double R0){
 
 
 //////////////////////////
-/*Função de Levy dependente de beta*/
+/*Função de Levy dependente de beta
 
 double rng_levy48(double alpha, double rr, double beta){
 double ee, phi;
@@ -85,11 +85,11 @@ if((1.0-delta)<mu && mu<(1.0+delta)){
 	return pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
 }
 }
-
+*/
 
 //////////////////////////
 
-/*  Função rng_levy48 dependendo de ell
+/*  Função rng_levy48 dependendo de ell*/
 double rng_levy48(double alpha, double rr){
 double ee, phi;
 double mu=alpha;
@@ -99,9 +99,12 @@ double xmu1=xmu-1;
 phi=(drand48()-0.5)*PI;
 ee=-log(drand48());
 return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-}*/
+}
 
 
+
+
+//////////////////////////////////////////////////////
 /* Função rng_levy48 com ell=1
 double rng_levy48(double alpha){
   double ee, phi;
@@ -150,7 +153,7 @@ int main(){
 
 /* Gerando todos os valores de ell e mu*/
 	FILE *arq1;
-	arq1 = fopen("dados_levy.csv", "w+");
+	arq1 = fopen("dados_levy_teste_filtro.csv", "w+");
 
 	for(index=0.1;index<2.1;index+=INDEX_INCREMENT){
 		for(ell=0.1;ell<=10;ell/=ELL_INCREMENT){
@@ -164,21 +167,21 @@ int main(){
 
 	}
 
-	for(values=10;values<10000;values++){
+	for(values=1;values<10000;values++){
 	for(index=0.1; index<2.1; index+=INDEX_INCREMENT){
 	for(ell=0.1;ell<=10;ell/=ELL_INCREMENT){
 		if((1.999999999<index && index<2.000000001) && (9.9999999999<ell && ell<10.0000000001)){
-//			do{
-			rry = rng_levy48(index, ell, 1.00);
-//			}while(rry<0 || rry>LARGESTFLIGHT);
+			do{
+			rry = rng_levy48(index, ell);
+			}while(rry<0 || rry>LARGESTFLIGHT);
 
 			fprintf(arq1, "%lf \n", rry);
 		}
 		else{
 
-//			do{
-			rry = rng_levy48(index, ell, 1.00);
-//			}while(rry<0 || rry>LARGESTFLIGHT);
+			do{
+			rry = rng_levy48(index, ell);
+			}while(rry<0 || rry>LARGESTFLIGHT);
 			fprintf(arq1, "%lf,", rry);
 		}
 	}
