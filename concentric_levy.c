@@ -27,7 +27,7 @@ static double sqrarg;
 
 #define RV 1    // Internal annulus radius
 #define L 50    // External annulus radius
-#define R0 1    // Scale factor
+#define R0 100000    // Scale factor
 #define LC 1.0001  // Searcher start point
 
 #define X_OUT 12345
