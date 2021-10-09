@@ -40,7 +40,7 @@ static double t4=X_OUT;
 
 //#define TOTALDISTANCE 1000000 // total distance before stoping
 //static long int TOTALDISTANCE; // total distance before stoping
-#define LARGESTFLIGHT (L*1000)  // maximum levy step size
+#define LARGESTFLIGHT (L*1000000000000)  // maximum levy step size
 #define SMALLESTFLIGHT 0.00000000000001
 
 
@@ -192,9 +192,11 @@ void find_target(){
 //		do{
 //        while(rry<0){
             //rrx=drand48();
-         rry=rng_levy48(alpha, R0, 1);
+         rry=rng_levy48(alpha, R0, 0);
 
          if(rry<0) rry=-rry;
+
+         if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
 
 //         if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
 //        }while(rry<0 || rry>LARGESTFLIGHT);
@@ -278,19 +280,21 @@ void levy_simulation(long int totaldistance){
 	// Writting the csv files
 	  //Creating the csv file and storage the data in it
 	  FILE * arq;
-	  char filename[100];
+	  char filename[1000];
 	  sprintf(filename, "/home/lucas/Documentos/Estudos_Doutorado/Testes_Distancia/levy_teste_distancia=%ld.csv", totaldistance);
 	  arq = fopen(filename, "w+");
-	  fprintf(arq, "mu,eta,distance,targets,number-of-flights,inside,outside\n");
+	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
 	  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
-	    fprintf(arq, "%lf,%lg,%lf,%ld,%ld,%ld,%ld\n",
+	    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
 	      alpha,
-	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+	      (double)target_histogram[tt=alpha/ALPHA_INC] / (double) distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
 	      distance_histogram[tt=alpha/ALPHA_INC],
 	      target_histogram[tt=alpha/ALPHA_INC],
 	      flight_histogram[tt=alpha/ALPHA_INC],
 	      inside_histogram[tt=alpha/ALPHA_INC],
-	      outside_histogram[tt=alpha/ALPHA_INC]);
+	      outside_histogram[tt=alpha/ALPHA_INC],
+		  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
+		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
 	  }
 	  fclose(arq);
 
@@ -305,10 +309,10 @@ void main(){
   info = localtime(&curr_time);
 
 
-
+  long int DISTANCE_INITIAL = 100;
   long int TOTALDISTANCE;
 
-  for(TOTALDISTANCE=1000000;TOTALDISTANCE<20000000;TOTALDISTANCE*=2){
+  for(TOTALDISTANCE=DISTANCE_INITIAL;TOTALDISTANCE<10000*DISTANCE_INITIAL;TOTALDISTANCE*=10){
   levy_simulation(TOTALDISTANCE);
   }
 
