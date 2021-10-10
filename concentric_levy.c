@@ -1,22 +1,23 @@
-/* Testes da simulação:
-1. fixe o valor do parametro de escala.
-- Valor do parâmetro de escala escolhido: R0=1
-
-2. calcule a fraçao dos aneis internos externos para uma certa distancia maxima percorrida.
-- Distância percorrida inicial = 1000000
-
-3. faça o mesmo para 2x, 4x, 8x e 16x  esse valor de distancia maxia percorrida.
-
-faça um grafico com as fracoes no eixo vertical e o  distancia percorrida em escala log no eixo horizontal
-
-isso é para ver o quão sensivel é a fração para a distancia percorrida...
-*/
-
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <stdlib.h>
 
-static float sqrarg;
+
+
+/*
+ * Notas
+ * Gandhi Viswanathan11:48
+2 novas colunas
+target interior
+target exterior
+Gandhi Viswanathan11:55
+4 colunas
+interior/total
+exterior/total
+Gandhi Viswanathan11:57
+alfa=0.1 (mu=1.1) tem que ter 50% no anel interno*/
+static double sqrarg;
 
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
 
@@ -24,23 +25,15 @@ static float sqrarg;
 //Defining some parameters
 #define PI 3.14159265358979323846
 
-#define X_OUT 12345
-
 #define RV 1    // Internal annulus radius
 #define L 50    // External annulus radius
-#define R0 1    // Scale factor
-#define LC 1.0001   // Searcher start point
+#define R0 100000    // Scale factor
+#define LC 1.0001  // Searcher start point
 #define PRECISION_INTERVAL 0.000000000000001
 
-
-static double t1=X_OUT;
-static double t2=X_OUT;
-static double t3=X_OUT;
-static double t4=X_OUT;
-
-//#define TOTALDISTANCE 1000000 // total distance before stoping
-//static long int TOTALDISTANCE; // total distance before stoping
-#define LARGESTFLIGHT (L*1000000000000)  // maximum levy step size
+#define X_OUT 12345
+#define TOTALDISTANCE 1000000  // total distance before stoping
+#define LARGESTFLIGHT 999999999999999  // maximum levy step size
 #define SMALLESTFLIGHT 0.00000000000001
 
 
@@ -49,6 +42,7 @@ static double t4=X_OUT;
 
 // defining the function drand48()
 double drand48();
+void exit(int status);
 
 // defining some variables
 static double travel; // travel distance
@@ -56,27 +50,30 @@ static double x,y; // searcher position
 static double alpha; // levy index alpha
 static int tt; // dummy for easy type casting
 
+static double t1=X_OUT;
+static double t2=X_OUT;
+static double t3=X_OUT;
+static double t4=X_OUT;
+
 static double distance_histogram[MAX_ALPHA_ENTRIES];
 static long target_histogram[MAX_ALPHA_ENTRIES];
 static long flight_histogram[MAX_ALPHA_ENTRIES];
 static long inside_histogram[MAX_ALPHA_ENTRIES];
 static long outside_histogram[MAX_ALPHA_ENTRIES];
 
-// Defining the levy alpha function
-/*double rng_levy48(double alpha, double rr){
-  double ee, phi;
-  double mu=alpha;
-  double mu1=mu-1;
-  double xmu=1/mu;
-  double xmu1=xmu-1;
-  phi=(drand48()-0.5)*PI;
-  ee=-log(drand48());
-  return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-  }
-*/
+/* Defining the levy alpha function
+double rng_levy48(double alpha, double rr){
+    double ee, phi;
+    double mu=alpha;
+    double mu1=mu-1;
+    double xmu=1/mu;
+    double xmu1=xmu-1;
+    phi=(drand48()-0.5)*PI;
+    ee=-log(drand48());
+    return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
+  }*/
 
 
-/*Função de Levy dependente de beta*/
 
 double rng_levy48(double alpha, double rr, double beta){
 double ee, phi;
@@ -96,16 +93,7 @@ if((1.0-PRECISION_INTERVAL)<mu && mu<(1.0+PRECISION_INTERVAL)){
 }
 }
 
-
-// Defining the initialize_search() function
-
-void initialize_search(){
-    x=LC;
-    y=0;
-    travel=0;
-}
-
-
+    
 double pickmin(double n1, double n2, double n3, double n4){
     double nn1, nn2, nn3, nn4;
     nn1=n1;nn2=n2;nn3=n3;nn4=n4;
@@ -167,6 +155,13 @@ void annulus_intersect(double tt1, double tt2, double tt3, double tt4, double tt
 
 
 
+void initialize_search(){
+    x=LC;
+    y=0.0;
+    travel=0.0;
+}
+
+
 void find_target(){
     double rrx, rry;                // Random number generation
     double vx, vy;                  // Velocity unit vector components
@@ -183,13 +178,13 @@ void find_target(){
 
     // the following loop only stops upon finding a target
     ell=0.0;
-
+    
     while(targetnotfound){
         //rry = LARGESTFLIGHT+1;
 
 
 
-//		do{
+  //      do{
 //        while(rry<0){
             //rrx=drand48();
          rry=rng_levy48(alpha, R0, 1);
@@ -197,8 +192,6 @@ void find_target(){
          if(rry<0) rry=-rry;
 
          if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
-
-//         if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
 //        }while(rry<0 || rry>LARGESTFLIGHT);
 
         flight_histogram[tt=alpha/ALPHA_INC]++;
@@ -213,7 +206,7 @@ void find_target(){
 
     t_min = pickmin(t1, t2, t3, t4);
 
-    if (0.0<t_min && t_min<1.0 + PRECISION_INTERVAL){
+    if (0.0<t_min && t_min<1.000000000000001){
         annulus_intersect(t1, t2, t3, t4, t_min);
         targetnotfound=0;
         travel+=ell*t_min; // t is the fraction traversed
@@ -248,76 +241,106 @@ void find_target(){
     }
 }
 
-void vectors_initializer(){
-	  //initialize result array
-	  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC) {
-	    distance_histogram[ tt=alpha/ALPHA_INC]=0;
-	    target_histogram[ tt=alpha/ALPHA_INC]=0;
-	    flight_histogram[ tt=alpha/ALPHA_INC]=0;
-	    inside_histogram[ tt=alpha/ALPHA_INC]=0;
-	    outside_histogram[ tt=alpha/ALPHA_INC]=0;
-	  }
 
-
-}
-
-
-void levy_simulation(long int totaldistance){
-
-	vectors_initializer();
-	// Where the simulation is running
-	for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
-
-		while (distance_histogram[tt=alpha/ALPHA_INC]<totaldistance)
-		  {
-		initialize_search(); //put searcher in the right position
-		find_target();  // search until target found
-		distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
-		target_histogram[tt=alpha/ALPHA_INC]++;
-		  }
-		}
-
-	// Writting the csv files
-	  //Creating the csv file and storage the data in it
-	  FILE * arq;
-	  char filename[1000];
-	  sprintf(filename, "/home/lucas/Documentos/Estudos_Doutorado/Testes_Distancia/levy_teste_beta=1_distancia=%ld.csv", totaldistance);
-	  arq = fopen(filename, "w+");
-	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
-	  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
-	    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
-	      alpha,
-	      (double)target_histogram[tt=alpha/ALPHA_INC] / (double) distance_histogram[tt=alpha/ALPHA_INC],
-	      distance_histogram[tt=alpha/ALPHA_INC],
-	      target_histogram[tt=alpha/ALPHA_INC],
-	      flight_histogram[tt=alpha/ALPHA_INC],
-	      inside_histogram[tt=alpha/ALPHA_INC],
-	      outside_histogram[tt=alpha/ALPHA_INC],
-		  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
-		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
-	  }
-	  fclose(arq);
-
-}
 
 void main(){
+  int i;
   // function to evaluate the time elapsed
   clock_t tic = clock();
   time_t curr_time;
   struct tm *info;
   time(&curr_time);
   info = localtime(&curr_time);
+  
+  drand48();
+  //initialize result array
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC) {
+    distance_histogram[ tt=alpha/ALPHA_INC]=0;
+    target_histogram[ tt=alpha/ALPHA_INC]=0;
+    flight_histogram[ tt=alpha/ALPHA_INC]=0;
+    inside_histogram[ tt=alpha/ALPHA_INC]=0;
+    outside_histogram[ tt=alpha/ALPHA_INC]=0;
+  }
+  
+  
+
+  
+  
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
+
+    while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
+    {
+	initialize_search(); //put searcher in the right position
+	find_target();  // search until target found
+	distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
+	target_histogram[tt=alpha/ALPHA_INC]++;
+    }
+  }
+  
+
+  printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
+  
+  /*print result array*/
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
+    printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
+    	      alpha,
+    	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+    	      distance_histogram[tt=alpha/ALPHA_INC],
+    	      target_histogram[tt=alpha/ALPHA_INC],
+    	      flight_histogram[tt=alpha/ALPHA_INC],
+    	      inside_histogram[tt=alpha/ALPHA_INC],
+    	      outside_histogram[tt=alpha/ALPHA_INC],
+    		  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
+    		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
+    fflush(stdout);
+  }
 
 
-  long int DISTANCE_INITIAL = 1000;
-  long int TOTALDISTANCE=10000000;
 
-  //for(TOTALDISTANCE=DISTANCE_INITIAL;TOTALDISTANCE<=10000*DISTANCE_INITIAL;TOTALDISTANCE*=10000){
-  //levy_simulation(TOTALDISTANCE);
-  //}
+  /*
+  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
+    printf("%lf %lg %lf %ld %ld\n",
+	   alpha,
+	   target_histogram[ tt=alpha/ALPHA_INC]/distance_histogram[ tt=alpha/ALPHA_INC]*(SQR(L)/RV) ,
+	   distance_histogram[tt=alpha/ALPHA_INC],
+	   target_histogram[tt=alpha/ALPHA_INC],
+	   flight_histogram[tt=alpha/ALPHA_INC]);
+    fflush(stdout);
+  }*/
 
-  levy_simulation(TOTALDISTANCE);
+  /*Creating the csv file and storage the data in it*/
+  FILE * arq;
+  arq = fopen("concentric_levy.csv", "w+");
+  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
+  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
+    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
+      alpha,
+      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+      distance_histogram[tt=alpha/ALPHA_INC],
+      target_histogram[tt=alpha/ALPHA_INC],
+      flight_histogram[tt=alpha/ALPHA_INC],
+      inside_histogram[tt=alpha/ALPHA_INC],
+      outside_histogram[tt=alpha/ALPHA_INC],
+	  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
+	  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
+  }
+  fclose(arq);
 
+
+
+  /*
+  FILE * arq;
+  arq = fopen("concentric_levy.csv", "w+");
+  fprintf(arq, "mu,eta,distance,targets,number-of-flights\n");
+  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
+    fprintf(arq, "%lf,%lg,%lf,%ld,%ld\n",
+      alpha,
+      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+      distance_histogram[tt=alpha/ALPHA_INC],
+      target_histogram[tt=alpha/ALPHA_INC],
+      flight_histogram[tt=alpha/ALPHA_INC]);
+  }
+  fclose(arq);*/
 
   clock_t toc = clock();
   printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
