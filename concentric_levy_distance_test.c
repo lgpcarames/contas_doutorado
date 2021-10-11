@@ -88,11 +88,11 @@ phi=(drand48()-0.5)*PI;
 ee=-log(drand48());
 double zeta=-beta*tan(PI*mu/2.0);
 if((1.0-PRECISION_INTERVAL)<mu && mu<(1.0+PRECISION_INTERVAL)){
-	ksi=PI/2;
-	return (1.0/ksi)*((PI/2.0+beta*phi)*tan(phi)-beta*log((PI/2.0)*ee*cos(phi)/(PI/2.0+beta*phi)));
+	ksi=PI/2.0;
+	return rr*(1.0/ksi)*((PI/2.0+beta*phi)*tan(phi)-beta*log((PI/2.0)*ee*cos(phi)/(PI/2.0+beta*phi)))+(2.0/PI)*beta*rr*log(rr);
 }else{
 	ksi=(1/mu)*atan(-zeta);
-	return pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
+	return rr*pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
 }
 }
 
@@ -281,13 +281,13 @@ void levy_simulation(long int totaldistance){
 	  //Creating the csv file and storage the data in it
 	  FILE * arq;
 	  char filename[1000];
-	  sprintf(filename, "/home/lucas/Documentos/Estudos_Doutorado/Testes_Distancia/levy_teste_beta=1_distancia=%ld.csv", totaldistance);
+	  sprintf(filename, "/Testes_Distancia/levy_teste_beta=1_distancia=%ld.csv", totaldistance);
 	  arq = fopen(filename, "w+");
 	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
 	  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
 	    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
 	      alpha,
-	      (double)target_histogram[tt=alpha/ALPHA_INC] / (double) distance_histogram[tt=alpha/ALPHA_INC],
+	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
 	      distance_histogram[tt=alpha/ALPHA_INC],
 	      target_histogram[tt=alpha/ALPHA_INC],
 	      flight_histogram[tt=alpha/ALPHA_INC],
@@ -310,13 +310,12 @@ void main(){
 
 
   long int DISTANCE_INITIAL = 1000;
-  long int TOTALDISTANCE=10000000;
+  long int TOTALDISTANCE=1000000;
 
-  //for(TOTALDISTANCE=DISTANCE_INITIAL;TOTALDISTANCE<=10000*DISTANCE_INITIAL;TOTALDISTANCE*=10000){
-  //levy_simulation(TOTALDISTANCE);
-  //}
-
+  for(TOTALDISTANCE=DISTANCE_INITIAL;TOTALDISTANCE<=10000*DISTANCE_INITIAL;TOTALDISTANCE*=10000){
   levy_simulation(TOTALDISTANCE);
+  }
+
 
 
   clock_t toc = clock();

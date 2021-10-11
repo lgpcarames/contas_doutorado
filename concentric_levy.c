@@ -25,14 +25,14 @@ static double sqrarg;
 //Defining some parameters
 #define PI 3.14159265358979323846
 
-#define RV 1    // Internal annulus radius
-#define L 50    // External annulus radius
-#define R0 100000    // Scale factor
+#define RV 1.0    // Internal annulus radius
+#define L 50.0    // External annulus radius
+#define R0 500    // Scale factor
 #define LC 1.0001  // Searcher start point
 #define PRECISION_INTERVAL 0.000000000000001
 
-#define X_OUT 12345
-#define TOTALDISTANCE 1000000  // total distance before stoping
+#define X_OUT 12345.0
+#define TOTALDISTANCE 10000000  // total distance before stoping
 #define LARGESTFLIGHT 999999999999999  // maximum levy step size
 #define SMALLESTFLIGHT 0.00000000000001
 
@@ -85,11 +85,11 @@ phi=(drand48()-0.5)*PI;
 ee=-log(drand48());
 double zeta=-beta*tan(PI*mu/2.0);
 if((1.0-PRECISION_INTERVAL)<mu && mu<(1.0+PRECISION_INTERVAL)){
-	ksi=PI/2;
-	return (1.0/ksi)*((PI/2.0+beta*phi)*tan(phi)-beta*log((PI/2.0)*ee*cos(phi)/(PI/2.0+beta*phi)));
+	ksi=PI/2.0;
+	return rr*(1.0/ksi)*((PI/2.0+beta*phi)*tan(phi)-beta*log((PI/2.0)*ee*cos(phi)/(PI/2.0+beta*phi)))+(2.0/PI)*beta*rr*log(rr);
 }else{
 	ksi=(1/mu)*atan(-zeta);
-	return pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
+	return rr*pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
 }
 }
 
