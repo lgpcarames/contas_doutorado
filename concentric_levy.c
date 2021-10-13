@@ -25,16 +25,15 @@ static double sqrarg;
 //Defining some parameters
 #define PI 3.14159265358979323846
 
-#define RV 1.0    // Internal annulus radius
-#define L 50.0    // External annulus radius
-#define R0 500    // Scale factor
+#define RV 1    // Internal annulus radius
+#define L 50    // External annulus radius
+#define R0 1    // Scale factor
 #define LC 1.0001  // Searcher start point
-#define PRECISION_INTERVAL 0.000000000000001
+#define PRECISION_INTERVAL 0.0000000000000001
 
 #define X_OUT 12345.0
 #define TOTALDISTANCE 10000000  // total distance before stoping
-#define LARGESTFLIGHT 999999999999999  // maximum levy step size
-#define SMALLESTFLIGHT 0.00000000000001
+#define LARGESTFLIGHT (L*1000)  // maximum levy step size
 
 
 #define ALPHA_INC 0.1  // step for incrementing alpha
@@ -48,6 +47,7 @@ void exit(int status);
 static double travel; // travel distance
 static double x,y; // searcher position
 static double alpha; // levy index alpha
+
 static int tt; // dummy for easy type casting
 
 static double t1=X_OUT;
@@ -137,11 +137,11 @@ void interval_solution(double x, double y, double xnew, double ynew, double rv, 
 }
 
 void annulus_intersect(double tt1, double tt2, double tt3, double tt4, double tt_min){
-	double el=0.0000000000000001;
-	short bool_1 = (tt1-el)<tt_min && tt_min<(tt1+el);
-	short bool_2 = (tt2-el)<tt_min && tt_min<(tt2+el);
-	short bool_3 = (tt3-el)<tt_min && tt_min<(tt3+el);
-	short bool_4 = (tt4-el)<tt_min && tt_min<(tt4+el);
+	//double el=0.0000000000000001;
+	short bool_1 = (tt1-PRECISION_INTERVAL)<tt_min && tt_min<(tt1+PRECISION_INTERVAL);
+	short bool_2 = (tt2-PRECISION_INTERVAL)<tt_min && tt_min<(tt2+PRECISION_INTERVAL);
+	short bool_3 = (tt3-PRECISION_INTERVAL)<tt_min && tt_min<(tt3+PRECISION_INTERVAL);
+	short bool_4 = (tt4-PRECISION_INTERVAL)<tt_min && tt_min<(tt4+PRECISION_INTERVAL);
 	if(bool_1 || bool_2){
 		inside_histogram[tt=alpha/ALPHA_INC]++;
 	}else if(bool_3 || bool_4){
@@ -171,6 +171,7 @@ void find_target(){
     double xnew, ynew;            // farthest away possible new searcher position
     double t_min;
     int contador=0;
+    double mu=alpha+1;
 
     // setting targetnotfound as false
     targetnotfound=1;
@@ -182,16 +183,21 @@ void find_target(){
     while(targetnotfound){
         //rry = LARGESTFLIGHT+1;
 
-
+		rry= LARGESTFLIGHT+1;
+		while (rry>LARGESTFLIGHT)
+		{
+		rrx=drand48();
+		rry=R0*exp(log(rrx)*(1/(1-mu)));
+		}
 
   //      do{
 //        while(rry<0){
             //rrx=drand48();
-         rry=rng_levy48(alpha, R0, 1);
+         //rry=rng_levy48(alpha, R0, 1);
 
-         if(rry<0) rry=-rry;
+         //if(rry<0) rry=-rry;
 
-         if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
+         //if(rry>LARGESTFLIGHT) rry=LARGESTFLIGHT;
 //        }while(rry<0 || rry>LARGESTFLIGHT);
 
         flight_histogram[tt=alpha/ALPHA_INC]++;
@@ -206,7 +212,7 @@ void find_target(){
 
     t_min = pickmin(t1, t2, t3, t4);
 
-    if (0.0<t_min && t_min<1.000000000000001){
+    if (0.0<t_min && t_min<1.0 + PRECISION_INTERVAL){
         annulus_intersect(t1, t2, t3, t4, t_min);
         targetnotfound=0;
         travel+=ell*t_min; // t is the fraction traversed
@@ -244,7 +250,7 @@ void find_target(){
 
 
 void main(){
-  int i;
+
   // function to evaluate the time elapsed
   clock_t tic = clock();
   time_t curr_time;
@@ -252,7 +258,7 @@ void main(){
   time(&curr_time);
   info = localtime(&curr_time);
   
-  drand48();
+
   //initialize result array
   for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC) {
     distance_histogram[ tt=alpha/ALPHA_INC]=0;
@@ -312,7 +318,7 @@ void main(){
   FILE * arq;
   arq = fopen("concentric_levy.csv", "w+");
   fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
-  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
+  for (alpha = 1.1; alpha < 3.1; alpha += ALPHA_INC) {
     fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
       alpha,
       target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),

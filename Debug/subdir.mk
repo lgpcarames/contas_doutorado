@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../concentric_levy_dist_test.c 
+../prl-comment-concentric.c 
 
 OBJS += \
-./concentric_levy_dist_test.o 
+./prl-comment-concentric.o 
 
 C_DEPS += \
-./concentric_levy_dist_test.d 
+./prl-comment-concentric.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
