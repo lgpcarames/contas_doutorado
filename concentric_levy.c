@@ -112,7 +112,8 @@ double pickmin(double n1, double n2, double n3, double n4){
 
 /*Given the initial position (x, y), the final position (xnew, ynew),
 * the radius of the inner (rv) and outer ring (l)
-* this function calculates if there will intersection*/
+* this function calculates if there will real solutions and
+* store the real solutions in t1, t2, t3 and t4*/
 void interval_solution(double x, double y, double xnew, double ynew, double rv, double l){
     // Defining variables that does not depend on the inner or outer radius
 	double a, b, c_in, c_out, discriminant_in, discriminant_out, delta_in, delta_out;
@@ -132,7 +133,7 @@ void interval_solution(double x, double y, double xnew, double ynew, double rv, 
     c_out = SQR(x)+SQR(y)-SQR(L);
     discriminant_out=SQR(b)-4*a*c_out;
 
-    // Loop to certified if there is a real solution for the inner ring
+    // Loop to certify if there is a real solution for the inner ring
     if(discriminant_in>0){
         // If it does, then obtain t1 and t2
         delta_in = sqrt(discriminant_in);
@@ -140,7 +141,7 @@ void interval_solution(double x, double y, double xnew, double ynew, double rv, 
         t2=(-b-delta_in)/(2*a);
     }
 
-    // Loop to certified if there is a real solution for the outer ring
+    // Loop to certify if there is a real solution for the outer ring
     if(discriminant_out>0){
         // If it does, then obtain t3 and t4
         delta_out = sqrt(discriminant_out);
@@ -198,6 +199,7 @@ void find_target(){
     // Starts the power-law generator
       // Adaptating the power-law generator to receive alpha index values
     double mu=alpha+1;
+
 		rry= LARGESTFLIGHT+1;
 		while (rry>LARGESTFLIGHT)
 		{
@@ -286,7 +288,7 @@ void main(){
 
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
   
-  /*Console Result Table*/
+  /*Console output result table*/
   for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
     printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
     	      alpha,
