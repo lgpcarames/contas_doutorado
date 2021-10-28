@@ -8,14 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include venv/Lib/site-packages/pandas/_libs/tslibs/src/datetime/subdir.mk
--include venv/Lib/site-packages/pandas/_libs/src/ujson/python/subdir.mk
--include venv/Lib/site-packages/pandas/_libs/src/ujson/lib/subdir.mk
--include venv/Lib/site-packages/pandas/_libs/src/parser/subdir.mk
--include venv/Lib/site-packages/numpy/f2py/tests/src/array_from_pyobj/subdir.mk
--include venv/Lib/site-packages/numpy/f2py/src/subdir.mk
--include venv/Lib/site-packages/numpy/distutils/mingw/subdir.mk
--include venv/Lib/site-packages/numpy/distutils/checks/subdir.mk
 -include Rascunhos/subdir.mk
 -include .metadata/.plugins/org.eclipse.cdt.make.core/subdir.mk
 -include subdir.mk

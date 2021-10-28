@@ -16,14 +16,25 @@ static double sqrarg;
 //Defining some parameters
 #define PI 3.14159265358979323846
 #define RV 1    // Internal annulus radius
-#define L 50    // External annulus radius
-#define R0 1    // Scale factor
-#define LC 1.0001  // Searcher start point
-#define PRECISION_INTERVAL 0.0000000000000001 // used to compare float numbers
+//#define L 50    // External annulus radius
+//#define R0 1    // Scale factor
+//#define LC 1.0001  // Searcher start point
+#define PRECISION_INTERVAL 0.000000000001 // used to compare float numbers
+
+// input values
+  // rho, delta, sigma parameters
+#define rho 0.0001
+#define sigma 0.0001
+#define Del 0.0001
+
+static double L = 1 / sqrt(PI * rho); // external radius
+static double LC = RV * (Del + 1); // start point
+static double R0 = sigma * RV;
+
 
 #define X_OUT 12345.0 // default value to numbers outside the interval [0,1]
-#define TOTALDISTANCE 10000000  // total distance before stoping
-#define LARGESTFLIGHT (L*1000)  // maximum levy step size
+#define TOTALDISTANCE 100000  // total distance before stoping
+#define LARGESTFLIGHT (L*9999999999)  // maximum levy step size
 
 
 #define ALPHA_INC 0.1  // step for incrementing alpha
@@ -68,8 +79,8 @@ double rng_levy48(double alpha, double rr){
     phi=(drand48()-0.5)*PI;
     ee=-log(drand48());
     return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
-  }*/
-
+  }
+*/
 
 
 /* Stable levy function with beta dependency
@@ -187,6 +198,8 @@ void find_target(){
     int count=0;
     
 
+
+
     // setting targetnotfound as false
     targetnotfound=1;
 
@@ -198,16 +211,21 @@ void find_target(){
 
     // Starts the power-law generator
       // Adaptating the power-law generator to receive alpha index values
-    double mu=alpha+1;
+    	//double mu=alpha+1;
 
-		rry= LARGESTFLIGHT+1;
-		while (rry>LARGESTFLIGHT)
-		{
-		rrx=drand48();
-		rry=R0*exp(log(rrx)*(1/(1-mu)));
-		}
+    	//rry= LARGESTFLIGHT+1;
+		//while (rry<0 || rry>LARGESTFLIGHT)
+		//{
+		//rrx=drand48();
+		//rry=R0*exp(log(rrx)*(1/(1-mu)));
+		//rry=rng_levy48(alpha, R0, 1);
 
-    //rry=rng_levy48(alpha, R0, 1);
+		rry=rng_levy48(alpha, R0, 1);
+		if(rry<0) rry = -rry;
+		if(rry>LARGESTFLIGHT) rry = LARGESTFLIGHT;
+		//}
+
+
 
     flight_histogram[tt=alpha/ALPHA_INC]++;
     
@@ -261,8 +279,11 @@ void main(){
   info = localtime(&curr_time);
   
 
+
+
+
   //initialize result array
-  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC) {
+  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC) {
     distance_histogram[ tt=alpha/ALPHA_INC]=0;
     target_histogram[ tt=alpha/ALPHA_INC]=0;
     flight_histogram[ tt=alpha/ALPHA_INC]=0;
@@ -274,12 +295,15 @@ void main(){
 
   
   
-  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
+  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC){
 
     while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
     {
       initialize_search(); //put searcher in the right position
       find_target();  // search until target found
+      //if(alpha>0.9){
+      	//printf("Aqui...");
+      //}
       distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
       target_histogram[tt=alpha/ALPHA_INC]++;
     }
@@ -289,7 +313,7 @@ void main(){
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
   
   /*Console output result table*/
-  for (alpha=0.1;alpha<2.1;alpha+=ALPHA_INC){
+  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC){
     printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
     	      alpha,
     	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
@@ -307,7 +331,7 @@ void main(){
   FILE * arq;
   arq = fopen("concentric_levy.csv", "w+");
   fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
-  for (alpha = 0.1; alpha < 2.1; alpha += ALPHA_INC) {
+  for (alpha = 0.1; alpha < 1.8; alpha += ALPHA_INC) {
     fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
       alpha,
       target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
