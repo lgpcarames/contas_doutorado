@@ -23,8 +23,8 @@ static double sqrarg;
 
 // input values
   // rho, delta, sigma parameters
+#define sigma 0.00001
 #define rho 0.0001
-#define sigma 0.0001
 #define Del 0.0001
 
 static double L = 1 / sqrt(PI * rho); // external radius
@@ -69,7 +69,7 @@ static long inside_histogram[MAX_ALPHA_ENTRIES];
 static long outside_histogram[MAX_ALPHA_ENTRIES];
 
 
-/* Original stable levy function proposed by Prof. Sergey
+/* Original stable levy function proposed by Prof. Sergey*/
 double rng_levy48(double alpha, double rr){
     double ee, phi;
     double mu=alpha;
@@ -80,15 +80,15 @@ double rng_levy48(double alpha, double rr){
     ee=-log(drand48());
     return rr*sin(mu*phi)/pow(cos(phi),xmu)*pow(cos(phi*mu1)/ee,xmu1);
   }
-*/
+
 
 
 /* Stable levy function with beta dependency
 * Reference: Chambers et al. Journal of Statistical Association, 1976
 * alpha-> is the alpha index in the stable distribution, with interval defined as (0,2]
 * rr-> is the scale factor in the stable distribution
-* beta-> is the skewness parameter, with interval defines as [-1, 1]
-*/
+* beta-> is the skewness parameter, with interval defined as [-1, 1]
+
 double rng_levy48(double alpha, double rr, double beta){
 double ee, phi;
 double mu=alpha;
@@ -106,7 +106,7 @@ if((1.0-PRECISION_INTERVAL)<mu && mu<(1.0+PRECISION_INTERVAL)){
 	return rr*pow((1+SQR(zeta)),0.5*xmu)*sin(mu*(phi+ksi))/pow(cos(phi),xmu)*pow(cos(phi-mu*(phi+ksi))/ee, xmu1);
 }
 }
-
+*/
 
 /* Select the smallest positive value defined
 *  among four double variables */
@@ -214,16 +214,18 @@ void find_target(){
     	//double mu=alpha+1;
 
     	//rry= LARGESTFLIGHT+1;
-		//while (rry<0 || rry>LARGESTFLIGHT)
-		//{
+
+
+
+		//do{
 		//rrx=drand48();
 		//rry=R0*exp(log(rrx)*(1/(1-mu)));
-		//rry=rng_levy48(alpha, R0, 1);
+		rry=rng_levy48(alpha, R0);
 
-		rry=rng_levy48(alpha, R0, 1);
+		//rry=rng_levy48(alpha, R0, 1);
 		if(rry<0) rry = -rry;
 		if(rry>LARGESTFLIGHT) rry = LARGESTFLIGHT;
-		//}
+		//}while (rry<0 || rry>LARGESTFLIGHT);
 
 
 
@@ -262,7 +264,9 @@ void find_target(){
     x=xnew;
     y=ynew;
 
-
+	if((distance_histogram[ tt=alpha/ALPHA_INC]+travel)>TOTALDISTANCE){
+		targetnotfound=0;
+	}
     if(targetnotfound) travel+=ell;
     }
 }
@@ -279,11 +283,14 @@ void main(){
   info = localtime(&curr_time);
   
 
+  float alpha_min = 0.1;
+  float alpha_max = 1.8;
+
 
 
 
   //initialize result array
-  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC) {
+  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC) {
     distance_histogram[ tt=alpha/ALPHA_INC]=0;
     target_histogram[ tt=alpha/ALPHA_INC]=0;
     flight_histogram[ tt=alpha/ALPHA_INC]=0;
@@ -295,7 +302,7 @@ void main(){
 
   
   
-  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC){
+  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
 
     while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
     {
@@ -313,10 +320,10 @@ void main(){
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
   
   /*Console output result table*/
-  for (alpha=0.1;alpha<1.8;alpha+=ALPHA_INC){
+  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
     printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
     	      alpha,
-    	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+    	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(1/(rho*RV)),
     	      distance_histogram[tt=alpha/ALPHA_INC],
     	      target_histogram[tt=alpha/ALPHA_INC],
     	      flight_histogram[tt=alpha/ALPHA_INC],
@@ -327,14 +334,18 @@ void main(){
     fflush(stdout);
   }
 
+  //estimating the total time elapsed
+  clock_t toc = clock();
+  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
+
   /*Creating the csv file and storage the data results in it*/
   FILE * arq;
-  arq = fopen("concentric_levy.csv", "w+");
+  arq = fopen("/home/lucas/Documentos/Estudos_Doutorado/PRL_Results/concentric_levy_d104_s105_r104.csv", "w+");
   fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
-  for (alpha = 0.1; alpha < 1.8; alpha += ALPHA_INC) {
+  for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
     fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
       alpha,
-      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(SQR(L)/RV),
+      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(1/(rho*RV)),
       distance_histogram[tt=alpha/ALPHA_INC],
       target_histogram[tt=alpha/ALPHA_INC],
       flight_histogram[tt=alpha/ALPHA_INC],
@@ -346,9 +357,6 @@ void main(){
   fclose(arq);
 
 
-  //estimating the total time elapsed
-  clock_t toc = clock();
-  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
 
 
 }
