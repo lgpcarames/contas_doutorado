@@ -1,4 +1,3 @@
-
 /* Levy Searcher Simulation*/
 
 
@@ -23,7 +22,7 @@ static double sqrarg;
 
 // input values
   // rho, delta, sigma parameters
-#define sigma 0.00001
+#define sigma 0.0001
 #define rho 0.0001
 #define Del 0.0001
 
@@ -225,7 +224,7 @@ void find_target(){
 		//rry=rng_levy48(alpha, R0, 1);
 		if(rry<0) rry = -rry;
 		if(rry>LARGESTFLIGHT) rry = LARGESTFLIGHT;
-		//}while (rry<0 || rry>LARGESTFLIGHT);
+//		}while (rry<0 || rry>LARGESTFLIGHT);
 
 
 
@@ -340,7 +339,7 @@ void main(){
 
   /*Creating the csv file and storage the data results in it*/
   FILE * arq;
-  arq = fopen("/home/lucas/Documentos/Estudos_Doutorado/PRL_Results/concentric_levy_d104_s105_r104.csv", "w+");
+  arq = fopen("/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/levy_d104_s104_r104.csv", "w+");
   fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
   for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
     fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
