@@ -22,18 +22,18 @@ static double sqrarg;
 
 // input values
   // rho, delta, sigma parameters
-#define sigma 0.0001
-#define rho 0.0001
-#define Del 0.0001
+//#define sigma 0.0001
+//#define rho 0.0001
+//#define Del 0.0001
 
-static double L = 1 / sqrt(PI * rho); // external radius
-static double LC = RV * (Del + 1); // start point
-static double R0 = sigma * RV;
+//static double L = 1 / sqrt(PI * rho); // external radius
+//static double LC = RV * (Del + 1); // start point
+//static double R0 = sigma * RV;
 
 
 #define X_OUT 12345.0 // default value to numbers outside the interval [0,1]
 #define TOTALDISTANCE 100000  // total distance before stoping
-#define LARGESTFLIGHT (L*9999999999)  // maximum levy step size
+#define LARGESTFLIGHT 9999999999  // maximum levy step size
 
 
 #define ALPHA_INC 0.1  // step for incrementing alpha
@@ -52,7 +52,7 @@ static double alpha; // levy index alpha
 static int tt; // dummy for easy type casting
 
 // solutions for the intersection with the inner ring
-static double t1=X_OUT; 
+static double t1=X_OUT;
 static double t2=X_OUT;
 
 // solution for hte intersectio with the outer ring
@@ -124,7 +124,7 @@ double pickmin(double n1, double n2, double n3, double n4){
 * the radius of the inner (rv) and outer ring (l)
 * this function calculates if there will real solutions and
 * store the real solutions in t1, t2, t3 and t4*/
-void interval_solution(double x, double y, double xnew, double ynew, double rv, double l){
+void interval_solution(double x, double y, double xnew, double ynew, double ll){
     // Defining variables that does not depend on the inner or outer radius
 	double a, b, c_in, c_out, discriminant_in, discriminant_out, delta_in, delta_out;
     double cx, cy;
@@ -140,7 +140,7 @@ void interval_solution(double x, double y, double xnew, double ynew, double rv, 
     discriminant_in=SQR(b)-4*a*c_in;
 
     // Variables that depends on the outer radius
-    c_out = SQR(x)+SQR(y)-SQR(L);
+    c_out = SQR(x)+SQR(y)-SQR(ll);
     discriminant_out=SQR(b)-4*a*c_out;
 
     // Loop to certify if there is a real solution for the inner ring
@@ -179,14 +179,15 @@ void annulus_intersect(double tt1, double tt2, double tt3, double tt4, double tt
 
 
 
-void initialize_search(){
+void initialize_search(double delta){
+	double LC = RV * (delta + 1); // start point
     x=LC;
     y=0.0;
     travel=0.0;
 }
 
 
-void find_target(){
+void find_target(double sigma, double delta, double rho, double total_distance){
     double rrx, rry;                // Random number generation
     double vx, vy;                  // Velocity unit vector components
     double ell;                     // Levy walk jump size
@@ -195,7 +196,10 @@ void find_target(){
     double xnew, ynew;            // farthest away possible new searcher position
     double t_min;
     int count=0;
-    
+
+    double L = 1 / sqrt(PI * rho); // external radius
+    double LC = RV * (delta + 1); // start point
+    double R0 = sigma * RV;
 
 
 
@@ -205,7 +209,7 @@ void find_target(){
 
     // the following loop only stops upon finding a target
     ell=0.0;
-    
+
     while(targetnotfound){
 
     // Starts the power-law generator
@@ -229,7 +233,7 @@ void find_target(){
 
 
     flight_histogram[tt=alpha/ALPHA_INC]++;
-    
+
     ell=rry;
     theta = 2.0*drand48()*PI;
     vx=cos(theta); vy=sin(theta);
@@ -237,7 +241,7 @@ void find_target(){
     xnew=x+ell*vx;
     ynew=y+ell*vy;
 
-    interval_solution(x, y, xnew, ynew, RV, L);
+    interval_solution(x, y, xnew, ynew, L);
 
     t_min = pickmin(t1, t2, t3, t4);
 
@@ -263,7 +267,7 @@ void find_target(){
     x=xnew;
     y=ynew;
 
-	if((distance_histogram[ tt=alpha/ALPHA_INC]+travel)>TOTALDISTANCE){
+	if((distance_histogram[ tt=alpha/ALPHA_INC]+travel)>total_distance){
 		targetnotfound=0;
 	}
     if(targetnotfound) travel+=ell;
@@ -271,6 +275,40 @@ void find_target(){
 }
 
 
+
+void starting_simulation(float alpha_min, float alpha_max){
+
+  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC) {
+	distance_histogram[ tt=alpha/ALPHA_INC]=0;
+	target_histogram[ tt=alpha/ALPHA_INC]=0;
+	flight_histogram[ tt=alpha/ALPHA_INC]=0;
+	inside_histogram[ tt=alpha/ALPHA_INC]=0;
+	outside_histogram[ tt=alpha/ALPHA_INC]=0;
+  }
+}
+
+void simulation(double alpha_min, double alpha_max, double sigma, double delta, double rho, double total_distance){
+
+	double L = 1 / sqrt(PI * rho); // external radius
+	double LC = RV * (delta + 1); // start point
+	double R0 = sigma * RV;
+
+  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
+
+	while (distance_histogram[tt=alpha/ALPHA_INC]<total_distance)
+	{
+	  initialize_search(delta); //put searcher in the right position
+	  find_target(sigma, delta, rho, total_distance);  // search until target found
+	  //if(alpha>0.9){
+		//printf("Aqui...");
+	  //}
+	  distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
+	  target_histogram[tt=alpha/ALPHA_INC]++;
+	}
+  }
+
+
+}
 
 void main(){
 
@@ -289,16 +327,7 @@ void main(){
 
 
   //initialize result array
-  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC) {
-    distance_histogram[ tt=alpha/ALPHA_INC]=0;
-    target_histogram[ tt=alpha/ALPHA_INC]=0;
-    flight_histogram[ tt=alpha/ALPHA_INC]=0;
-    inside_histogram[ tt=alpha/ALPHA_INC]=0;
-    outside_histogram[ tt=alpha/ALPHA_INC]=0;
-  }
-  
-  
-
+  starting_simulation(alpha_min, alpha_max);
   
   
   for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
@@ -316,9 +345,10 @@ void main(){
   }
   
 
+  /*
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
   
-  /*Console output result table*/
+  Console output result table
   for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
     printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
     	      alpha,
@@ -332,10 +362,7 @@ void main(){
     		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
     fflush(stdout);
   }
-
-  //estimating the total time elapsed
-  clock_t toc = clock();
-  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
+  */
 
   /*Creating the csv file and storage the data results in it*/
   FILE * arq;
@@ -355,7 +382,9 @@ void main(){
   }
   fclose(arq);
 
-
+  /*estimating the total time elapsed*/
+  clock_t toc = clock();
+  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
 
 
 }
