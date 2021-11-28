@@ -310,6 +310,36 @@ void simulation(double alpha_min, double alpha_max, double sigma, double delta, 
 
 }
 
+
+void result_save(double alpha_min, double alpha_max, double sigma, double delta, double rho, int n ){
+	 FILE * arq;
+	 char filename[5000];
+	 sprintf(filename, "/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/PRL_Results/levy_n=%d.csv", n);
+	  arq = fopen(filename, "w+");
+	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside,inside-percent,outside-percent\n");
+	  for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
+	    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld,%lf,%lf\n",
+	      alpha,
+	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(1/(rho*RV)),
+	      distance_histogram[tt=alpha/ALPHA_INC],
+	      target_histogram[tt=alpha/ALPHA_INC],
+	      flight_histogram[tt=alpha/ALPHA_INC],
+	      inside_histogram[tt=alpha/ALPHA_INC],
+	      outside_histogram[tt=alpha/ALPHA_INC],
+		  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
+		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
+	  }
+
+
+
+	  fprintf(arq, "\n d=%.1e_s=%.1e_r=%.1e", sigma, delta, rho);
+
+	  fclose(arq);
+
+}
+
+
+
 void main(){
 
   // function to evaluate the time elapsed
@@ -319,32 +349,24 @@ void main(){
   time(&curr_time);
   info = localtime(&curr_time);
   
-
-  float alpha_min = 0.1;
-  float alpha_max = 1.8;
-
-
+	double sigma;
+	double rho;
+	double Del;
 
 
-  //initialize result array
-  starting_simulation(alpha_min, alpha_max);
-  
-  
-  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
+	float alpha_min = 0.1;
+	float alpha_max = 1.8;
+	float tt_d = 1000.0;
 
-    while (distance_histogram[tt=alpha/ALPHA_INC]<TOTALDISTANCE)
-    {
-      initialize_search(); //put searcher in the right position
-      find_target();  // search until target found
-      //if(alpha>0.9){
-      	//printf("Aqui...");
-      //}
-      distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
-      target_histogram[tt=alpha/ALPHA_INC]++;
-    }
-  }
-  
 
+	int i;
+	for(sigma=0.01, Del=0.01,rho=0.01,i=1;sigma>=0.0001, Del>=0.0001,rho>=0.0001,i<=27;sigma*=0.1, Del*=0.1, rho*=0.1,i++){
+	starting_simulation(alpha_min, alpha_max);
+
+	simulation(alpha_min, alpha_max, sigma, Del, rho, tt_d);
+
+	result_save(alpha_min, alpha_max, sigma, Del, rho, i);
+	}
   /*
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
   
@@ -364,23 +386,7 @@ void main(){
   }
   */
 
-  /*Creating the csv file and storage the data results in it*/
-  FILE * arq;
-  arq = fopen("/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/levy_d104_s104_r104.csv", "w+");
-  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside, inside-percent, outside-percent\n");
-  for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
-    fprintf(arq, "%lf,%lf,%lf,%ld,%ld,%ld,%ld, %lf, %lf\n",
-      alpha,
-      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(1/(rho*RV)),
-      distance_histogram[tt=alpha/ALPHA_INC],
-      target_histogram[tt=alpha/ALPHA_INC],
-      flight_histogram[tt=alpha/ALPHA_INC],
-      inside_histogram[tt=alpha/ALPHA_INC],
-      outside_histogram[tt=alpha/ALPHA_INC],
-	  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
-	  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
-  }
-  fclose(arq);
+
 
   /*estimating the total time elapsed*/
   clock_t toc = clock();
