@@ -314,7 +314,7 @@ void simulation(double alpha_min, double alpha_max, double sigma, double delta, 
 void result_save(double alpha_min, double alpha_max, double sigma, double delta, double rho, int n ){
 	 FILE * arq;
 	 char filename[5000];
-	 sprintf(filename, "/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/PRL_Results/levy_n=%d.csv", n);
+	 sprintf(filename, "/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/PRL_Results/levy_s=%.1e_d=%.1e_r=%.1e.csv", sigma, delta, rho);
 	  arq = fopen(filename, "w+");
 	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside,inside-percent,outside-percent\n");
 	  for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
@@ -330,9 +330,6 @@ void result_save(double alpha_min, double alpha_max, double sigma, double delta,
 		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
 	  }
 
-
-
-	  fprintf(arq, "\n d=%.1e_s=%.1e_r=%.1e", sigma, delta, rho);
 
 	  fclose(arq);
 
@@ -356,16 +353,20 @@ void main(){
 
 	float alpha_min = 0.1;
 	float alpha_max = 1.8;
-	float tt_d = 1000.0;
+	float tt_d = 1000000.0;
 
 
 	int i;
-	for(sigma=0.01, Del=0.01,rho=0.01,i=1;sigma>=0.0001, Del>=0.0001,rho>=0.0001,i<=27;sigma*=0.1, Del*=0.1, rho*=0.1,i++){
+	for(sigma=0.01;sigma>=0.0001;sigma*=0.1){
+		for(Del=0.01;Del>=0.0001;Del*=0.1){
+			for(rho=0.01;rho>=0.0001;rho*=0.1){
 	starting_simulation(alpha_min, alpha_max);
 
 	simulation(alpha_min, alpha_max, sigma, Del, rho, tt_d);
 
 	result_save(alpha_min, alpha_max, sigma, Del, rho, i);
+			}
+		}
 	}
   /*
   printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
@@ -390,7 +391,7 @@ void main(){
 
   /*estimating the total time elapsed*/
   clock_t toc = clock();
-  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)TOTALDISTANCE);
+  printf("Elapsed: %f seconds, TD=%d\n", (double)(toc - tic)/CLOCKS_PER_SEC, (int)tt_d);
 
 
 }
