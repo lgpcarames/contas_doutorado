@@ -1,4 +1,6 @@
-/* Levy Searcher Simulation*/
+/* Levy Walk Search in Concentric Annuli
+*  Maded by Lucas Caramês and Viswanathan Gandhi
+*/
 
 
 #include <stdio.h>
@@ -15,21 +17,7 @@ static double sqrarg;
 //Defining some parameters
 #define PI 3.14159265358979323846
 #define RV 1    // Internal annulus radius
-//#define L 50    // External annulus radius
-//#define R0 1    // Scale factor
-//#define LC 1.0001  // Searcher start point
 #define PRECISION_INTERVAL 0.000000000001 // used to compare float numbers
-
-// input values
-  // rho, delta, sigma parameters
-//#define sigma 0.0001
-//#define rho 0.0001
-//#define Del 0.0001
-
-//static double L = 1 / sqrt(PI * rho); // external radius
-//static double LC = RV * (Del + 1); // start point
-//static double R0 = sigma * RV;
-
 
 #define X_OUT 12345.0 // default value to numbers outside the interval [0,1]
 #define TOTALDISTANCE 100000  // total distance before stoping
@@ -178,7 +166,7 @@ void annulus_intersect(double tt1, double tt2, double tt3, double tt4, double tt
 }
 
 
-
+/*Search initializer function*/
 void initialize_search(double delta){
 	double LC = RV * (delta + 1); // start point
     x=LC;
@@ -186,7 +174,7 @@ void initialize_search(double delta){
     travel=0.0;
 }
 
-
+/*This function will search until find the target or make the total distance*/
 void find_target(double sigma, double delta, double rho, double total_distance){
     double rrx, rry;                // Random number generation
     double vx, vy;                  // Velocity unit vector components
@@ -267,6 +255,7 @@ void find_target(double sigma, double delta, double rho, double total_distance){
     x=xnew;
     y=ynew;
 
+  /*if the target reaches the total distance, the search ends*/
 	if((distance_histogram[ tt=alpha/ALPHA_INC]+travel)>total_distance){
 		targetnotfound=0;
 	}
@@ -275,7 +264,7 @@ void find_target(double sigma, double delta, double rho, double total_distance){
 }
 
 
-
+/*It start the vectors for the simulation*/
 void starting_simulation(float alpha_min, float alpha_max){
 
   for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC) {
@@ -287,6 +276,7 @@ void starting_simulation(float alpha_min, float alpha_max){
   }
 }
 
+/*Function that run the simulation itself*/
 void simulation(double alpha_min, double alpha_max, double sigma, double delta, double rho, double total_distance){
 
 	double L = 1 / sqrt(PI * rho); // external radius
@@ -310,11 +300,11 @@ void simulation(double alpha_min, double alpha_max, double sigma, double delta, 
 
 }
 
-
+/*Save the results in a specif path*/
 void result_save(double alpha_min, double alpha_max, double sigma, double delta, double rho, int n ){
 	 FILE * arq;
 	 char filename[5000];
-	 sprintf(filename, "/home/lucas/eclipse-workspace/Estudos_Doutorado/contas_doutorado/PRL_Results/levy_s=%.1e_d=%.1e_r=%.1e.csv", sigma, delta, rho);
+	 sprintf(filename, "/PRL_Results/levy_s=%.1e_d=%.1e_r=%.1e.csv", sigma, delta, rho);
 	  arq = fopen(filename, "w+");
 	  fprintf(arq, "alpha,eta,distance,targets,number-of-flights,inside,outside,inside-percent,outside-percent\n");
 	  for (alpha = alpha_min; alpha < alpha_max; alpha += ALPHA_INC) {
