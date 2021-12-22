@@ -289,9 +289,6 @@ void simulation(double alpha_min, double alpha_max, double sigma, double delta, 
 	{
 	  initialize_search(delta); //put searcher in the right position
 	  find_target(sigma, delta, rho, total_distance);  // search until target found
-	  //if(alpha>0.9){
-		//printf("Aqui...");
-	  //}
 	  distance_histogram[tt=alpha/ALPHA_INC]+=travel; // sum the distances and store
 	  target_histogram[tt=alpha/ALPHA_INC]++;
 	}
@@ -358,26 +355,6 @@ void main(){
 			}
 		}
 	}
-  /*
-  printf("\n alpha, eta, distance, targets, number-of-flights, inside, outside, inside-percent, outside-percent\n");
-  
-  Console output result table
-  for (alpha=alpha_min;alpha<alpha_max;alpha+=ALPHA_INC){
-    printf("%lf %lf %lf %ld %ld %ld %ld, %lf, %lf\n",
-    	      alpha,
-    	      target_histogram[tt=alpha/ALPHA_INC] / distance_histogram[tt=alpha/ALPHA_INC]*(1/(rho*RV)),
-    	      distance_histogram[tt=alpha/ALPHA_INC],
-    	      target_histogram[tt=alpha/ALPHA_INC],
-    	      flight_histogram[tt=alpha/ALPHA_INC],
-    	      inside_histogram[tt=alpha/ALPHA_INC],
-    	      outside_histogram[tt=alpha/ALPHA_INC],
-    		  (double)inside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC],
-    		  (double)outside_histogram[tt=alpha/ALPHA_INC]/(double)target_histogram[tt=alpha/ALPHA_INC]);
-    fflush(stdout);
-  }
-  */
-
-
 
   /*estimating the total time elapsed*/
   clock_t toc = clock();
